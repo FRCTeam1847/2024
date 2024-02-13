@@ -31,8 +31,8 @@ public class ShootingAnimationCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (counter > 1) {
-      counter = 0;
+    // if (counter > 1) {
+      // counter = 0;
       if (OnIndex < 19) {
         // Left side
         lightsSubsystem.m_ledBuffer.setLED(OnIndex, lightsSubsystem.offColor);
@@ -53,13 +53,18 @@ public class ShootingAnimationCommand extends Command {
         OnIndex = 0;
       }
 
-    }
-    counter++;
+    // }
+    // counter++;
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    for (var i = 0; i < 19; i++) {
+      lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
+      lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
+    }
+
   }
 
   // Returns true when the command should end.

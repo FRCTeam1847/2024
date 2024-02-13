@@ -5,33 +5,31 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ShootingSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
 
-public class ShootingCommand extends Command {
-  private ShootingSubsystem shootingSubsystem;
-
-  /** Creates a new ShootingCommand. */
-  public ShootingCommand(ShootingSubsystem _shootingSubsystem) {
-    shootingSubsystem = _shootingSubsystem;
+public class IntakeFeedCommand extends Command {
+  private FeederSubsystem feederSubsystem;
+  /** Creates a new IntakeFeedCommand. */
+  public IntakeFeedCommand(FeederSubsystem _feederSubsystem) {
+    feederSubsystem =_feederSubsystem;
+    addRequirements(_feederSubsystem);
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(_shootingSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shootingSubsystem.ShootNote();
+    feederSubsystem.IntakeNote();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // shootingSubsystem.Stop();
+    feederSubsystem.Stop();
   }
 
   // Returns true when the command should end.

@@ -7,13 +7,16 @@ package frc.robot.subsystems;
 import java.util.function.BooleanSupplier;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShootingSubsystem extends SubsystemBase {
-  private final WPI_TalonSRX m_motor = new WPI_TalonSRX(5);
+  private final WPI_TalonSRX m_motor = new WPI_TalonSRX(1);
 
   /** Creates a new IntakeSubsystem. */
   public ShootingSubsystem() {
+    m_motor.setInverted(true);
 
   }
 
@@ -21,16 +24,29 @@ public class ShootingSubsystem extends SubsystemBase {
     return m_motor.isRevLimitSwitchClosed() == 0;
   }
 
+  private boolean getTopSwitchValue(){
+    return m_motor.isFwdLimitSwitchClosed() == 0;
+  }
+
   public void IntakeNote() {
-    m_motor.set(ControlMode.PercentOutput, -0.2);
+    m_motor.set(ControlMode.PercentOutput, -0.5);
   }
 
   public void ShootNote() {
-    m_motor.set(ControlMode.PercentOutput, 0.25);
+    m_motor.set(ControlMode.PercentOutput, 0.75);
   }
 
   public void Stop() {
     m_motor.stopMotor();
+  }
+
+  public Command StopCommand(){
+    return new Command() {
+      @Override
+      public void execute() {
+        Stop();
+      }
+    };
   }
 
   public BooleanSupplier NoteSwitchPressed() {
@@ -50,6 +66,27 @@ public class ShootingSubsystem extends SubsystemBase {
       @Override
       public boolean getAsBoolean() {
         return !getSwitchValue();
+      }
+    };
+
+  }
+  public BooleanSupplier TopSwitchPressed() {
+    // Query some boolean state, such as a digital sensor.
+    return new BooleanSupplier() {
+      @Override
+      public boolean getAsBoolean() {
+        return getTopSwitchValue();
+      }
+    };
+
+  }
+
+  public BooleanSupplier TopSwitchNotPressed() {
+    // Query some boolean state, such as a digital sensor.
+    return new BooleanSupplier() {
+      @Override
+      public boolean getAsBoolean() {
+        return !getTopSwitchValue();
       }
     };
 
