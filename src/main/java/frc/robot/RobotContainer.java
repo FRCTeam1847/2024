@@ -13,6 +13,7 @@ import frc.robot.commands.NoteCollectedAnimationCommand;
 import frc.robot.commands.NoteMissingCommand;
 import frc.robot.commands.ShootingAnimationCommand;
 import frc.robot.commands.ShootingCommand;
+import frc.robot.subsystems.DriveTrainSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.ShootingSubsystem;
@@ -36,6 +37,7 @@ public class RobotContainer {
   private final LightsSubsystem lightSubSystem = new LightsSubsystem();
   private final ShootingSubsystem shootingSubsystem = new ShootingSubsystem();
   private final FeederSubsystem feederSubsystem = new FeederSubsystem();
+  private final DriveTrainSubsystem Drive = new DriveTrainSubsystem();
 
   // The robots commands
   private final ShootingCommand shootingCommand = new ShootingCommand(shootingSubsystem);
@@ -49,8 +51,8 @@ public class RobotContainer {
   private final IntakeFeedCommand intakeFeedCommand = new IntakeFeedCommand(feederSubsystem);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
+  public static CommandXboxController m_driverController =
+      new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -66,15 +68,15 @@ public class RobotContainer {
     // new
     // Trigger(shootingSubsystem.NoteSwitchNotPressed()).onTrue(noteMissingCommand);
    
-    new Trigger(shootingSubsystem.TopSwitchPressed()).onTrue(
-       new ParallelCommandGroup(
-            intakeAnimationCommand,
-            intakeCommand,
-            intakeFeedCommand)
-            .onlyIf(shootingSubsystem.NoteSwitchNotPressed())
-            .until(shootingSubsystem.NoteSwitchPressed())
-            .andThen(noteCollectedAnimationCommand)
-    );
+    // new Trigger(shootingSubsystem.TopSwitchPressed()).onTrue(
+    //    new ParallelCommandGroup(
+    //         intakeAnimationCommand,
+    //         intakeCommand,
+    //         intakeFeedCommand)
+    //         .onlyIf(shootingSubsystem.NoteSwitchNotPressed())
+    //         .until(shootingSubsystem.NoteSwitchPressed())
+    //         .andThen(noteCollectedAnimationCommand)
+    // );
     // m_driverController.b().toggleOnTrue(
     //     new ParallelCommandGroup(
     //         intakeAnimationCommand,
@@ -84,21 +86,21 @@ public class RobotContainer {
     //         .until(shootingSubsystem.NoteSwitchPressed())
     //         .andThen(noteCollectedAnimationCommand));
 
-    m_driverController.x().toggleOnTrue(
-        new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                shootingCommand.withTimeout(1)
-                    .asProxy()
-                    .andThen(feedCommand)
-                    // .onlyIf(shootingSubsystem.NoteSwitchPressed())
-                    .until(shootingSubsystem.NoteSwitchNotPressed()),
-                new WaitCommand(2),
-                new ParallelCommandGroup(
-                    shootingSubsystem.StopCommand(),
-                    feederSubsystem.StopCommand())),
-            shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
-                .until(shootingSubsystem.NoteSwitchNotPressed())));
-  }
+//     m_driverController.x().toggleOnTrue(
+//         new ParallelCommandGroup(
+//             new SequentialCommandGroup(
+//                 shootingCommand.withTimeout(1)
+//                     .asProxy()
+//                     .andThen(feedCommand)
+//                     // .onlyIf(shootingSubsystem.NoteSwitchPressed())
+//                     .until(shootingSubsystem.NoteSwitchNotPressed()),
+//                 new WaitCommand(2),
+//                 new ParallelCommandGroup(
+//                     shootingSubsystem.StopCommand(),
+//                     feederSubsystem.StopCommand())),
+//             shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
+//                 .until(shootingSubsystem.NoteSwitchNotPressed())));
+   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
