@@ -8,11 +8,9 @@ import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -38,16 +36,16 @@ public class DriveTrainSubsystem extends SubsystemBase {
   private static final double cpr = 360;
   private static final double whd = 6;
 
-  private DifferentialDriveKinematics m_Kinematics = new DifferentialDriveKinematics(32.375);
+  // private DifferentialDriveKinematics m_Kinematics = new DifferentialDriveKinematics(32.375);
 
   WPI_PigeonIMU _pidgety = new WPI_PigeonIMU(0);
 
-  private final DifferentialDrivePoseEstimator m_DifferentialDrivePoseEstimator;
+  // private DifferentialDrivePoseEstimator m_DifferentialDrivePoseEstimator;
 
   private Field2d m_field = new Field2d();
   private Pose2d pose = new Pose2d();
 
-  private NetworkTableEntry botPose;
+  double[] botPose = table.getEntry("botPose").getDoubleArray(new double[6]);
 
   /** Creates a new DriveTrainSubsystem. */
   public DriveTrainSubsystem() {
@@ -59,8 +57,9 @@ public class DriveTrainSubsystem extends SubsystemBase {
     m_leftDrive2.follow(m_leftDrive1);
     m_rightDrive2.follow(m_rightDrive1);
 
-   m_DifferentialDrivePoseEstimator = new DifferentialDrivePoseEstimator(
-      m_Kinematics, _pidgety.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance(), );
+    // m_DifferentialDrivePoseEstimator
+    // = new DifferentialDrivePoseEstimator(m_Kinematics, _pidgety.getRotation2d(),
+    // leftEncoder.getDistance(), rightEncoder.getDistance());
 
   }
 
@@ -70,10 +69,13 @@ public class DriveTrainSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-   botPose = table.getEntry("botPose");
-    pose = new Pose2d(botPose.get, cpr, null)
-    m_DifferentialDrivePoseEstimator.update(_pidgety.getRotation2d(), leftEncoder.getDistance(),
-        rightEncoder.getDistance());
+    botPose = table.getEntry("botpose").getDoubleArray(new double[6]);
+
+    Pose2d robotPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[2]));
+    m_field.setRobotPose(robotPose);
+
+    // m_DifferentialDrivePoseEstimator.update(_pidgety.getRotation2d(), leftEncoder.getDistance(),
+    //     rightEncoder.getDistance());
     SmartDashboard.putData("Field", m_field);
 
     // m_DifferentialDrivePoseEstimator.addVisionMeasurement(null, cpr, null);
