@@ -9,7 +9,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Encoder;
@@ -36,16 +36,14 @@ public class DriveTrainSubsystem extends SubsystemBase {
   private static final double cpr = 360;
   private static final double whd = 6;
 
-  // private DifferentialDriveKinematics m_Kinematics = new DifferentialDriveKinematics(32.375);
+  private final WPI_PigeonIMU gyro = new WPI_PigeonIMU(0);
 
-  WPI_PigeonIMU _pidgety = new WPI_PigeonIMU(0);
-
-  // private DifferentialDrivePoseEstimator m_DifferentialDrivePoseEstimator;
+  private final DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(
+      gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
 
   private Field2d m_field = new Field2d();
-  private Pose2d pose = new Pose2d();
 
-  double[] botPose = table.getEntry("botPose").getDoubleArray(new double[6]);
+  private double[] botPose = table.getEntry("botPose").getDoubleArray(new double[6]);
 
   /** Creates a new DriveTrainSubsystem. */
   public DriveTrainSubsystem() {
@@ -56,12 +54,28 @@ public class DriveTrainSubsystem extends SubsystemBase {
 
     m_leftDrive2.follow(m_leftDrive1);
     m_rightDrive2.follow(m_rightDrive1);
-
-    // m_DifferentialDrivePoseEstimator
-    // = new DifferentialDrivePoseEstimator(m_Kinematics, _pidgety.getRotation2d(),
-    // leftEncoder.getDistance(), rightEncoder.getDistance());
-
+    SmartDashboard.putData("Field", m_field);
   }
+
+  /** Update robot odometry. */
+  public void updateOdometry() {
+    m_odometry.update(
+        gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
+  }
+
+  /** Resets robot odometry. */
+  public void resetOdometry(Pose2d pose) {
+    leftEncoder.reset();
+    rightEncoder.reset();
+    m_odometry.resetPosition(
+        gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance(), pose);
+  }
+
+    /** Check the current robot pose. */
+    public Pose2d getPose() {
+      return m_odometry.getPoseMeters();
+    }
+  
 
   public void ArcadeDrive(double X, double Z) {
     Drive.arcadeDrive(X, Z);
@@ -69,16 +83,17 @@ public class DriveTrainSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    
     botPose = table.getEntry("botpose").getDoubleArray(new double[6]);
+    System.out.println(botPose);
+    // if(Check Bot Pose){
+    //   Pose2d newPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[2]));
+    //   resetOdometry(newPose);
+    // }
 
-    Pose2d robotPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[2]));
-    m_field.setRobotPose(robotPose);
+    updateOdometry();
+    m_field.setRobotPose(m_odometry.getPoseMeters());
 
-    // m_DifferentialDrivePoseEstimator.update(_pidgety.getRotation2d(), leftEncoder.getDistance(),
-    //     rightEncoder.getDistance());
-    SmartDashboard.putData("Field", m_field);
-
-    // m_DifferentialDrivePoseEstimator.addVisionMeasurement(null, cpr, null);
     double leftX = Math.pow(RobotContainer.m_driverController.getLeftX(), 3);
     double leftY = Math.pow(RobotContainer.m_driverController.getLeftY(), 3);
     Drive.arcadeDrive(leftX, leftY);
