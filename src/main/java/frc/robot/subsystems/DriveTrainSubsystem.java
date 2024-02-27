@@ -88,9 +88,12 @@ public class DriveTrainSubsystem extends SubsystemBase {
   // public Command getPosition(){}
 
   public Command arcadeDriveCommand(DoubleSupplier fwd, DoubleSupplier rot) {
-    // A split-stick arcade command, with forward/backward controlled by the left
-    // hand, and turning controlled by the right.
-    return run(() -> Drive.arcadeDrive(fwd.getAsDouble(), rot.getAsDouble()))
+    // Set arcade drive with a cubic function
+    return run(() -> {
+      double xSpeed = Math.pow(fwd.getAsDouble(), 3);
+      double zRotation = Math.pow(rot.getAsDouble(), 3);
+      Drive.arcadeDrive(xSpeed, zRotation);
+    })
         .withName("arcadeDrive");
   }
 
