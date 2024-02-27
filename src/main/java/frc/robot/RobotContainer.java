@@ -32,7 +32,7 @@ public class RobotContainer {
                         OperatorConstants.kDriverControllerPort);
 
         private final SendableChooser<Command> m_chooser = new SendableChooser<>();
-        
+
         // The robot's subsystems
         private final LauncherSubsystem launchSubsystem = new LauncherSubsystem();
         private final LightsSubsystem lightSubSystem = new LightsSubsystem();
@@ -48,18 +48,18 @@ public class RobotContainer {
                         .withTimeout(15);
 
         private final Command Rotate = Drive
-                        .driveRotateAngle(30)
-                        .withTimeout(15);
+                        .driveRotateAngle(-30)
+                        .withTimeout(5);
 
-        private final Command IntakeCommand = new ParallelCommandGroup(
-                        launchSubsystem.intakeCommand(),
+        private final Command IntakeCommand = new ParallelCommandGroup(launchSubsystem.intakeCommand(),
                         intakeAnimationCommand);
 
         private final Command ShootingCommand = new ParallelCommandGroup(
                         launchSubsystem.prepareLaunch()
                                         .withTimeout(1)
                                         .andThen(launchSubsystem.launchNoteCommand())
-                                        .handleInterrupt(() -> launchSubsystem.StopMotors()),
+                                        .withTimeout(2)
+                                        .finallyDo(() -> launchSubsystem.StopMotors()),
                         shootingAnimation);
 
         /**
@@ -67,7 +67,7 @@ public class RobotContainer {
          */
         public RobotContainer() {
                 m_chooser.setDefaultOption("Drive Inches", DriveInches);
-                m_chooser.addOption("Rotate", Rotate);
+                m_chooser.addOption("Shoot", ShootingCommand);
                 SmartDashboard.putData("Auto choices", m_chooser);
                 // Configure the trigger bindings
                 configureBindings();
@@ -75,9 +75,10 @@ public class RobotContainer {
 
         private void configureBindings() {
                 // Launcher autos
-                new Trigger(launchSubsystem.TopSwitchPressed())
-                                .onTrue(IntakeCommand);
-                // Launcher Shoot
+                // new Trigger(launchSubsystem.TopSwitchPressed())
+                // .onTrue(IntakeCommand);
+                m_driverController.y().toggleOnTrue(IntakeCommand);
+                // // Launcher Shoot
                 m_driverController
                                 .x()
                                 .toggleOnTrue(ShootingCommand);
@@ -88,7 +89,7 @@ public class RobotContainer {
                 Drive.setDefaultCommand(
                                 Drive.arcadeDriveCommand(
                                                 () -> -m_driverController.getLeftY(),
-                                                () -> -m_driverController.getRightX()));
+                                                () -> -m_driverController.getLeftX()));
         }
 
         /**

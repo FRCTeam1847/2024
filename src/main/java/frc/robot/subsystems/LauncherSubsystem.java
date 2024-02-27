@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -18,7 +19,7 @@ public class LauncherSubsystem extends SubsystemBase {
   private final CANSparkMax m_feed = new CANSparkMax(5, MotorType.kBrushless);
 
   private final double intakeSpeed = -0.5;
-  private final double launchSpeed = 0.75;
+  private final double launchSpeed = 1;
   private final double feedSpeed = 0.25;
   /** Creates a new Launcher. */
   public LauncherSubsystem() {
@@ -47,15 +48,15 @@ public class LauncherSubsystem extends SubsystemBase {
   }
 
   public Command intakeCommand() {
-    return runOnce(
+    return run(
         () -> {
           m_launch.set(intakeSpeed);
           m_feed.set(-feedSpeed);
         })
-        .onlyIf(() -> getTopSwitchValue())
+        // .onlyIf(() -> getTopSwitchValue())
         .until(
             () -> getBottomSwitchValue())
-        .withTimeout(2)
+        // .withTimeout(2)
         .finallyDo(interrupted -> StopMotors());
   }
 
@@ -66,7 +67,7 @@ public class LauncherSubsystem extends SubsystemBase {
   public Command launchNoteCommand(){
     return run(()-> {
       m_launch.set(launchSpeed);
-      m_launch.set(0.5);
+      m_feed.set(feedSpeed);
     });
   }
 
@@ -88,5 +89,8 @@ public class LauncherSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    SmartDashboard.putNumber("Launch Wheel", m_launch.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Feed Wheel", m_feed.getEncoder().getVelocity());
   }
 }

@@ -112,15 +112,18 @@ public class DriveTrainSubsystem extends SubsystemBase {
   }
 
   public Command driveRotateAngle(double angle) {
-    return runOnce(
+    return run(
         () -> {
           // Reset encoders at the start of the command
-          leftEncoder.reset();
-          rightEncoder.reset();
+          gyro.reset();
         })
         // Drive forward at specified speed
         .andThen(run(() -> {
-          Drive.arcadeDrive(0, angle, false);
+          double speed = 0.5;
+          if(angle< 0){
+            speed =-0.5;
+          }
+          Drive.arcadeDrive(0, speed, false);
         }))
         // End command when we've traveled the specified distance
         .until(
