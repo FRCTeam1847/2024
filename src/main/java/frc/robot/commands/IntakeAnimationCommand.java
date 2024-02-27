@@ -59,6 +59,10 @@ public class IntakeAnimationCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    for (var i = 0; i < 19; i++) {
+      lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.greenColor);
+      lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights-i, lightsSubsystem.greenColor);
+    }
   }
 
   // Returns true when the command should end.

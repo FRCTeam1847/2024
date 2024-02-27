@@ -5,25 +5,16 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.FeedCommand;
 import frc.robot.commands.IntakeAnimationCommand;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.IntakeFeedCommand;
-import frc.robot.commands.NoteCollectedAnimationCommand;
-import frc.robot.commands.NoteMissingCommand;
 import frc.robot.commands.ShootingAnimationCommand;
-import frc.robot.commands.ShootingCommand;
-import frc.robot.subsystems.CimberSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveTrainSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.ShootingSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -37,29 +28,20 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-        // The robot's subsystems
-        private final LightsSubsystem lightSubSystem = new LightsSubsystem();
-        private final ShootingSubsystem shootingSubsystem = new ShootingSubsystem();
-        private final FeederSubsystem feederSubsystem = new FeederSubsystem();
-        private final DriveTrainSubsystem Drive = new DriveTrainSubsystem();
-        private final CimberSubsystem cimberSubsystem = new CimberSubsystem();
-
-        // The robots commands
-        private final ShootingCommand shootingCommand = new ShootingCommand(shootingSubsystem);
-        private final ShootingAnimationCommand shootingAnimation = new ShootingAnimationCommand(lightSubSystem);
-        private final IntakeAnimationCommand intakeAnimationCommand = new IntakeAnimationCommand(lightSubSystem);
-        private final NoteCollectedAnimationCommand noteCollectedAnimationCommand = new NoteCollectedAnimationCommand(
-                        lightSubSystem);
-        private final NoteMissingCommand noteMissingCommand = new NoteMissingCommand(lightSubSystem);
-        private final IntakeCommand intakeCommand = new IntakeCommand(shootingSubsystem);
-        private final FeedCommand feedCommand = new FeedCommand(feederSubsystem);
-        private final IntakeFeedCommand intakeFeedCommand = new IntakeFeedCommand(feederSubsystem);
-
-        // Replace with CommandPS4Controller or CommandJoystick if needed
         public static CommandXboxController m_driverController = new CommandXboxController(
                         OperatorConstants.kDriverControllerPort);
 
         private final SendableChooser<Command> m_chooser = new SendableChooser<>();
+        
+        // The robot's subsystems
+        private final LauncherSubsystem launchSubsystem = new LauncherSubsystem();
+        private final LightsSubsystem lightSubSystem = new LightsSubsystem();
+        private final DriveTrainSubsystem Drive = new DriveTrainSubsystem();
+        private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+
+        // The robots commands
+        private final ShootingAnimationCommand shootingAnimation = new ShootingAnimationCommand(lightSubSystem);
+        private final IntakeAnimationCommand intakeAnimationCommand = new IntakeAnimationCommand(lightSubSystem);
 
         private final Command DriveInches = Drive
                         .driveDistanceCommand(24, 0.5)
@@ -68,6 +50,17 @@ public class RobotContainer {
         private final Command Rotate = Drive
                         .driveRotateAngle(30)
                         .withTimeout(15);
+
+        private final Command IntakeCommand = new ParallelCommandGroup(
+                        launchSubsystem.intakeCommand(),
+                        intakeAnimationCommand);
+
+        private final Command ShootingCommand = new ParallelCommandGroup(
+                        launchSubsystem.prepareLaunch()
+                                        .withTimeout(1)
+                                        .andThen(launchSubsystem.launchNoteCommand())
+                                        .handleInterrupt(() -> launchSubsystem.StopMotors()),
+                        shootingAnimation);
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -81,36 +74,17 @@ public class RobotContainer {
         }
 
         private void configureBindings() {
-
-                new Trigger(shootingSubsystem.TopSwitchPressed()).onTrue(
-                                new ParallelCommandGroup(
-                                                intakeAnimationCommand,
-                                                intakeCommand,
-                                                intakeFeedCommand)
-                                                .onlyIf(shootingSubsystem.NoteSwitchNotPressed())
-                                                .until(shootingSubsystem.NoteSwitchPressed())
-                                                .andThen(noteCollectedAnimationCommand));
-
-                m_driverController.x().toggleOnTrue(
-                                new ParallelCommandGroup(
-                                                new SequentialCommandGroup(
-                                                                feedCommand.until(shootingSubsystem
-                                                                                .NoteSwitchNotPressed()),
-                                                                // shootingCommand.withTimeout(0.8)
-                                                                // .asProxy()
-                                                                // .andThen(feedCommand),
-                                                                // // .onlyIf(shootingSubsystem.NoteSwitchPressed())
-                                                                // //.until(shootingSubsystem.NoteSwitchNotPressed()),
-                                                                new WaitCommand(1.5),
-                                                                new ParallelCommandGroup(
-                                                                                shootingSubsystem.StopCommand(),
-                                                                                feederSubsystem.StopCommand())),
-                                                shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
-                                                                .until(shootingSubsystem.NoteSwitchNotPressed())));
-
-                m_driverController.a().whileTrue(cimberSubsystem.Climb());
-                m_driverController.b().whileTrue(cimberSubsystem.Lower());
-
+                // Launcher autos
+                new Trigger(launchSubsystem.TopSwitchPressed())
+                                .onTrue(IntakeCommand);
+                // Launcher Shoot
+                m_driverController
+                                .x()
+                                .toggleOnTrue(ShootingCommand);
+                // Climber
+                m_driverController.a().whileTrue(climberSubsystem.Climb());
+                m_driverController.b().whileTrue(climberSubsystem.Lower());
+                // Driver
                 Drive.setDefaultCommand(
                                 Drive.arcadeDriveCommand(
                                                 () -> -m_driverController.getLeftY(),

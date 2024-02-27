@@ -64,7 +64,6 @@ public class ShootingAnimationCommand extends Command {
       lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
       lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
     }
-
   }
 
   // Returns true when the command should end.

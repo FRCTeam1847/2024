@@ -81,16 +81,13 @@ public class DriveTrainSubsystem extends SubsystemBase {
     return m_odometry.getPoseMeters();
   }
 
-  public void ArcadeDrive(double X, double Z) {
-    Drive.arcadeDrive(X, Z);
-  }
-
-  // public Command getPosition(){}
-
   public Command arcadeDriveCommand(DoubleSupplier fwd, DoubleSupplier rot) {
-    // A split-stick arcade command, with forward/backward controlled by the left
-    // hand, and turning controlled by the right.
-    return run(() -> Drive.arcadeDrive(fwd.getAsDouble(), rot.getAsDouble()))
+    // Set arcade drive with a cubic function
+    return run(() -> {
+      double xSpeed = Math.pow(fwd.getAsDouble(), 3);
+      double zRotation = Math.pow(rot.getAsDouble(), 3);
+      Drive.arcadeDrive(xSpeed, zRotation);
+    })
         .withName("arcadeDrive");
   }
 
@@ -105,7 +102,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
         // Drive forward at specified speed
         .andThen(run(() -> {
           double angle = gyro.getAngle();
-          ArcadeDrive(speed, -angle);
+          Drive.arcadeDrive(speed, -angle, false);
         }))
         // End command when we've traveled the specified distance
         .until(
@@ -114,7 +111,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
         .finallyDo(interrupted -> Drive.stopMotor());
   }
 
-    public Command driveRotateAngle(double angle) {
+  public Command driveRotateAngle(double angle) {
     return runOnce(
         () -> {
           // Reset encoders at the start of the command
@@ -123,7 +120,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
         })
         // Drive forward at specified speed
         .andThen(run(() -> {
-          ArcadeDrive(0, angle);
+          Drive.arcadeDrive(0, angle, false);
         }))
         // End command when we've traveled the specified distance
         .until(
