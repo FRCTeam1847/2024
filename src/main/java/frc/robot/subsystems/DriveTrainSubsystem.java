@@ -104,7 +104,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
         // Drive forward at specified speed
         .andThen(run(() -> {
           double angle = gyro.getAngle();
-          ArcadeDrive(speed, 0);
+          ArcadeDrive(speed, -angle);
         }))
         // End command when we've traveled the specified distance
         .until(
@@ -115,21 +115,11 @@ public class DriveTrainSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-
     double[] botPose = table.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
-    // if(Check Bot Pose){
     Pose2d newPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
-    // resetOdometry(newPose);
-    // }
-
-    // resetOdometry(newPose);
-    // m_field.setRobotPose(m_odometry.getPoseMeters());
+    m_field.setRobotPose(newPose);
     SmartDashboard.putNumber("Left Encoder", leftEncoder.getDistance());
     SmartDashboard.putNumber("Right Encoder", rightEncoder.getDistance());
     SmartDashboard.putNumber("Gyro", gyro.getAngle());
-
-    // double leftY = Math.pow(RobotContainer.m_driverController.getLeftY(), 3);
-    // double leftX = Math.pow(RobotContainer.m_driverController.getLeftX(), 3);
-    // Drive.arcadeDrive(leftX, leftY);
   }
 }
