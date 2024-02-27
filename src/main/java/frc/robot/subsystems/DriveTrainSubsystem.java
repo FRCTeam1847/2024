@@ -100,6 +100,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
           // Reset encoders at the start of the command
           leftEncoder.reset();
           rightEncoder.reset();
+          gyro.reset();
         })
         // Drive forward at specified speed
         .andThen(run(() -> {
@@ -109,6 +110,24 @@ public class DriveTrainSubsystem extends SubsystemBase {
         // End command when we've traveled the specified distance
         .until(
             () -> Math.max(leftEncoder.getDistance(), rightEncoder.getDistance()) >= distanceInches)
+        // Stop the drive when the command ends
+        .finallyDo(interrupted -> Drive.stopMotor());
+  }
+
+    public Command driveRotateAngle(double angle) {
+    return runOnce(
+        () -> {
+          // Reset encoders at the start of the command
+          leftEncoder.reset();
+          rightEncoder.reset();
+        })
+        // Drive forward at specified speed
+        .andThen(run(() -> {
+          ArcadeDrive(0, angle);
+        }))
+        // End command when we've traveled the specified distance
+        .until(
+            () -> gyro.getAngle() >= angle)
         // Stop the drive when the command ends
         .finallyDo(interrupted -> Drive.stopMotor());
   }
