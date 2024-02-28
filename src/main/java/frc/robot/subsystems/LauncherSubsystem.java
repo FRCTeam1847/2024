@@ -12,7 +12,9 @@ import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class LauncherSubsystem extends SubsystemBase {
   private final WPI_TalonSRX m_launch = new WPI_TalonSRX(1);
@@ -60,20 +62,24 @@ public class LauncherSubsystem extends SubsystemBase {
         .finallyDo(interrupted -> StopMotors());
   }
 
-  public Command prepareLaunch(){
-    return run(()->m_launch.set(launchSpeed));
+  public Command prepareLaunch() {
+    return run(() -> m_launch.set(launchSpeed));
   }
 
-  public Command launchNoteCommand(){
-    return run(()-> {
-      m_launch.set(launchSpeed);
+  public Command launchNoteCommand() {
+    return run(() -> {
       m_feed.set(feedSpeed);
     });
   }
 
+  public Command shootingCommand() {
+    return new SequentialCommandGroup(
+        prepareLaunch(),
+        new WaitCommand(1),
+        launchNoteCommand(),
+        new WaitCommand(0.5)).onlyIf(() -> getBottomSwitchValue()).finallyDo(() -> StopMotors());
 
-
-
+  }
 
   public BooleanSupplier TopSwitchPressed() {
     // Query some boolean state, such as a digital sensor.

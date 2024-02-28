@@ -54,12 +54,7 @@ public class RobotContainer {
         private final Command IntakeCommand = new ParallelCommandGroup(launchSubsystem.intakeCommand(),
                         intakeAnimationCommand);
 
-        private final Command ShootingCommand = new ParallelCommandGroup(
-                        launchSubsystem.prepareLaunch()
-                                        .withTimeout(1)
-                                        .andThen(launchSubsystem.launchNoteCommand())
-                                        .withTimeout(2)
-                                        .finallyDo(() -> launchSubsystem.StopMotors()),
+        private final Command ShootingCommand = new ParallelCommandGroup(launchSubsystem.shootingCommand(),
                         shootingAnimation);
 
         /**
