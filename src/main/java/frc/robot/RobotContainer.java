@@ -13,6 +13,7 @@ import frc.robot.commands.NoteCollectedAnimationCommand;
 import frc.robot.commands.NoteMissingCommand;
 import frc.robot.commands.ShootingAnimationCommand;
 import frc.robot.commands.ShootingCommand;
+import frc.robot.commands.DropCommand;
 import frc.robot.subsystems.CimberSubsystem;
 import frc.robot.subsystems.DriveTrainSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
@@ -46,6 +47,7 @@ public class RobotContainer {
 
         // The robots commands
         private final ShootingCommand shootingCommand = new ShootingCommand(shootingSubsystem);
+        private final DropCommand dropingCommand = new DropCommand (shootingSubsystem);
         private final ShootingAnimationCommand shootingAnimation = new ShootingAnimationCommand(lightSubSystem);
         private final IntakeAnimationCommand intakeAnimationCommand = new IntakeAnimationCommand(lightSubSystem);
         private final NoteCollectedAnimationCommand noteCollectedAnimationCommand = new NoteCollectedAnimationCommand(
@@ -62,19 +64,47 @@ public class RobotContainer {
         private final SendableChooser<Command> m_chooser = new SendableChooser<>();
 
         private final Command DriveInches = Drive
-                        .driveDistanceCommand(24, 0.5)
+                        .driveDistanceCommand(24, -0.5)
                         .withTimeout(15);
 
         private final Command Rotate = Drive
                         .driveRotateAngle(30)
                         .withTimeout(15);
 
+        private Command ShootCommand = new ParallelCommandGroup(
+                        new SequentialCommandGroup(
+                                        shootingCommand.withTimeout(1)
+                                                        .asProxy()
+                                                        .andThen(feedCommand)
+                                                        .onlyIf(shootingSubsystem.NoteSwitchPressed())
+                                                        .until(shootingSubsystem.NoteSwitchNotPressed()),
+                                        new WaitCommand(0.5).andThen(
+                                                        new ParallelCommandGroup(
+                                                                        shootingSubsystem.StopCommand(),
+                                                                        feederSubsystem.StopCommand()))),
+                        shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
+                                        .until(shootingSubsystem.NoteSwitchNotPressed()));
+        // private Command DropCommand = new ParallelCommandGroup(
+        //                 new SequentialCommandGroup(
+        //                                 dropingCommand.withTimeout(1)
+        //                                                 .asProxy()
+        //                                                 .andThen(feedCommand)
+        //                                                 .onlyIf(shootingSubsystem.NoteSwitchPressed())
+        //                                                 .until(shootingSubsystem.NoteSwitchNotPressed()),
+        //                                 new WaitCommand(0.5).andThen(
+        //                                                 new ParallelCommandGroup(
+        //                                                                 shootingSubsystem.StopCommand(),
+        //                                                                 feederSubsystem.StopCommand()))),
+        //                 shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
+        //                                 .until(shootingSubsystem.NoteSwitchNotPressed()));
+
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-                m_chooser.setDefaultOption("Drive Inches", DriveInches);
-                m_chooser.addOption("Rotate", Rotate);
+                m_chooser.setDefaultOption("Shoot", ShootCommand);
+                 m_chooser.addOption("Shoot and drive", ShootCommand.andThen(DriveInches));
+                m_chooser.addOption("Drive", DriveInches);
                 SmartDashboard.putData("Auto choices", m_chooser);
                 // Configure the trigger bindings
                 configureBindings();
@@ -89,24 +119,10 @@ public class RobotContainer {
                                                 intakeFeedCommand)
                                                 .onlyIf(shootingSubsystem.NoteSwitchNotPressed())
                                                 .until(shootingSubsystem.NoteSwitchPressed())
-                                                .andThen(noteCollectedAnimationCommand));
+                                                .andThen(noteCollectedAnimationCommand).withTimeout(1));
 
-                m_driverController.x().toggleOnTrue(
-                                new ParallelCommandGroup(
-                                                new SequentialCommandGroup(
-                                                                feedCommand.until(shootingSubsystem
-                                                                                .NoteSwitchNotPressed()),
-                                                                // shootingCommand.withTimeout(0.8)
-                                                                // .asProxy()
-                                                                // .andThen(feedCommand),
-                                                                // // .onlyIf(shootingSubsystem.NoteSwitchPressed())
-                                                                // //.until(shootingSubsystem.NoteSwitchNotPressed()),
-                                                                new WaitCommand(1.5),
-                                                                new ParallelCommandGroup(
-                                                                                shootingSubsystem.StopCommand(),
-                                                                                feederSubsystem.StopCommand())),
-                                                shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
-                                                                .until(shootingSubsystem.NoteSwitchNotPressed())));
+                m_driverController.x().toggleOnTrue(ShootCommand);
+                // m_driverController.y().toggleOnTrue(DropCommand);
 
                 m_driverController.a().whileTrue(cimberSubsystem.Climb());
                 m_driverController.b().whileTrue(cimberSubsystem.Lower());
@@ -114,7 +130,7 @@ public class RobotContainer {
                 Drive.setDefaultCommand(
                                 Drive.arcadeDriveCommand(
                                                 () -> -m_driverController.getLeftY(),
-                                                () -> -m_driverController.getRightX()));
+                                                () -> -m_driverController.getLeftX()));
         }
 
         /**

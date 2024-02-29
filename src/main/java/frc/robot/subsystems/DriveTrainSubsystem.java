@@ -108,7 +108,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
         // Drive forward at specified speed
         .andThen(run(() -> {
           double angle = gyro.getAngle();
-          ArcadeDrive(speed, -angle);
+          Drive.arcadeDrive(speed, 0, false);
         }))
         // End command when we've traveled the specified distance
         .until(
@@ -117,16 +117,37 @@ public class DriveTrainSubsystem extends SubsystemBase {
         .finallyDo(interrupted -> Drive.stopMotor());
   }
 
+  // public Command driveDistanceCommand(double distanceInches, double speed) {
+  //   return run(
+  //       () -> {
+  //         // Reset encoders at the start of the command
+  //         // leftEncoder.reset();
+  //         // rightEncoder.reset();
+  //         // gyro.reset();
+  //         // Drive.setSafetyEnabled(false);
+  //       })
+  //       // Drive forward at specified speed
+  //       .andThen(run(() -> {
+  //         // double angle = gyro.getAngle();
+          
+  //         Drive.arcadeDrive(speed, 0, false);
+  //       }));
+  //       // End command when we've traveled the specified distance
+  //       // .until(
+  //       //     () -> Math.max(leftEncoder.getDistance(), rightEncoder.getDistance()) >= distanceInches)
+  //       // Stop the drive when the command ends
+  //       // .finallyDo(interrupted -> Drive.stopMotor());
+  // }
+
     public Command driveRotateAngle(double angle) {
     return runOnce(
         () -> {
           // Reset encoders at the start of the command
-          leftEncoder.reset();
-          rightEncoder.reset();
+          gyro.reset();
         })
         // Drive forward at specified speed
         .andThen(run(() -> {
-          ArcadeDrive(0, angle);
+          ArcadeDrive(0, 0.5);
         }))
         // End command when we've traveled the specified distance
         .until(

@@ -21,7 +21,7 @@ public class FeederSubsystem extends SubsystemBase {
   }
 
   public void ShootNote() {
-    m_motor.set(0.8);
+    m_motor.set(0.5);
   }
 
   public void Stop() {
