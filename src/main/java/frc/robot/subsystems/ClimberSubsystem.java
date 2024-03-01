@@ -9,10 +9,10 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class CimberSubsystem extends SubsystemBase {
+public class ClimberSubsystem extends SubsystemBase {
    private final WPI_TalonSRX m_motor = new WPI_TalonSRX(2);
-  /** Creates a new Cimber. */
-  public CimberSubsystem() {
+  /** Creates a new Climber. */
+  public ClimberSubsystem() {
     m_motor.setInverted(false);
   }
 

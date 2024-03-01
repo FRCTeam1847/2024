@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -10,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class FeederSubsystem extends SubsystemBase {
   // private TalonFX m_motor = new TalonFX(6, "rio");
-    private final CANSparkMax m_motor = new CANSparkMax(5, MotorType.kBrushless);
+  private final CANSparkMax m_motor = new CANSparkMax(5, MotorType.kBrushless);
 
   /** Creates a new Feeder. */
   public FeederSubsystem() {
@@ -32,6 +33,29 @@ public class FeederSubsystem extends SubsystemBase {
     return new Command() {
       @Override
       public void execute() {
+        Stop();
+      }
+    };
+  }
+
+  public Command FeedCommand() {
+    return new Command() {
+      @Override
+      public void execute() {
+        ShootNote();
+      }
+    };
+  }
+
+  public Command IntakeCommand() {
+    return new Command() {
+      @Override
+      public void execute() {
+        IntakeNote();
+      }
+
+      @Override
+      public void end(boolean interrupted) {
         Stop();
       }
     };

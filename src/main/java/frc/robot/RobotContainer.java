@@ -5,16 +5,14 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.FeedCommand;
 import frc.robot.commands.IntakeAnimationCommand;
-import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.IntakeFeedCommand;
 import frc.robot.commands.NoteCollectedAnimationCommand;
 import frc.robot.commands.NoteMissingCommand;
 import frc.robot.commands.ShootingAnimationCommand;
 import frc.robot.commands.ShootingCommand;
 import frc.robot.commands.DropCommand;
-import frc.robot.subsystems.CimberSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveTrainSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
@@ -43,7 +41,7 @@ public class RobotContainer {
         private final ShootingSubsystem shootingSubsystem = new ShootingSubsystem();
         private final FeederSubsystem feederSubsystem = new FeederSubsystem();
         private final DriveTrainSubsystem Drive = new DriveTrainSubsystem();
-        private final CimberSubsystem climberSubsystem = new CimberSubsystem();
+        private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
         // The robots commands
         private final ShootingCommand shootingCommand = new ShootingCommand(shootingSubsystem);
@@ -53,8 +51,6 @@ public class RobotContainer {
         private final NoteCollectedAnimationCommand noteCollectedAnimationCommand = new NoteCollectedAnimationCommand(
                         lightSubSystem);
         private final NoteMissingCommand noteMissingCommand = new NoteMissingCommand(lightSubSystem);
-        private final IntakeCommand intakeCommand = new IntakeCommand(shootingSubsystem);
-        private final FeedCommand feedCommand = new FeedCommand(feederSubsystem);
         private final IntakeFeedCommand intakeFeedCommand = new IntakeFeedCommand(feederSubsystem);
 
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -75,7 +71,7 @@ public class RobotContainer {
                         new SequentialCommandGroup(
                                         shootingCommand.withTimeout(1)
                                                         .asProxy()
-                                                        .andThen(feedCommand)
+                                                        .andThen(feederSubsystem.FeedCommand())
                                                         .onlyIf(shootingSubsystem.NoteSwitchPressed())
                                                         .until(shootingSubsystem.NoteSwitchNotPressed()),
                                         new WaitCommand(0.5).andThen(
@@ -88,7 +84,7 @@ public class RobotContainer {
                         new SequentialCommandGroup(
                                         droppingCommand.withTimeout(1)
                                                         .asProxy()
-                                                        .andThen(feedCommand)
+                                                        .andThen(feederSubsystem.FeedCommand())
                                                         .onlyIf(shootingSubsystem.NoteSwitchPressed())
                                                         .until(shootingSubsystem.NoteSwitchNotPressed()),
                                         new WaitCommand(0.5).andThen(
@@ -116,7 +112,7 @@ public class RobotContainer {
                 new Trigger(shootingSubsystem.TopSwitchPressed()).onTrue(
                                 new ParallelCommandGroup(
                                                 intakeAnimationCommand,
-                                                intakeCommand,
+                                                feederSubsystem.IntakeCommand(),
                                                 intakeFeedCommand)
                                                 .onlyIf(shootingSubsystem.NoteSwitchNotPressed())
                                                 .until(shootingSubsystem.NoteSwitchPressed())
