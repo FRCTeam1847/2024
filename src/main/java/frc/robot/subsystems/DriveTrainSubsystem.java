@@ -81,6 +81,22 @@ public class DriveTrainSubsystem extends SubsystemBase {
     return m_odometry.getPoseMeters();
   }
 
+  public static double limitedCube(double x, double speed) {
+    // Calculate x^3
+    double result = Math.pow(x, 3);
+
+    // Check if result is below the minimum limit
+    if (result < -speed) {
+        return -speed;
+    }
+    // Check if result is above the maximum limit
+    else if (result > speed) {
+        return -speed;
+    }
+    // Return the result if it's within the limits
+    return result;
+}
+
   public void ArcadeDrive(double X, double Z) {
     Drive.arcadeDrive(X, Z);
   }
@@ -90,8 +106,8 @@ public class DriveTrainSubsystem extends SubsystemBase {
   public Command arcadeDriveCommand(DoubleSupplier fwd, DoubleSupplier rot) {
     // Set arcade drive with a cubic function
     return run(() -> {
-      double xSpeed = Math.pow(fwd.getAsDouble(), 3);
-      double zRotation = Math.pow(rot.getAsDouble(), 3);
+      double xSpeed = limitedCube(fwd.getAsDouble(), 0.5);
+      double zRotation = limitedCube(rot.getAsDouble(), 0.5);
       Drive.arcadeDrive(xSpeed, zRotation);
     })
         .withName("arcadeDrive");
