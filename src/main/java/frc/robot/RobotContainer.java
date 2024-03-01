@@ -43,11 +43,11 @@ public class RobotContainer {
         private final ShootingSubsystem shootingSubsystem = new ShootingSubsystem();
         private final FeederSubsystem feederSubsystem = new FeederSubsystem();
         private final DriveTrainSubsystem Drive = new DriveTrainSubsystem();
-        private final CimberSubsystem cimberSubsystem = new CimberSubsystem();
+        private final CimberSubsystem climberSubsystem = new CimberSubsystem();
 
         // The robots commands
         private final ShootingCommand shootingCommand = new ShootingCommand(shootingSubsystem);
-        private final DropCommand dropingCommand = new DropCommand (shootingSubsystem);
+        private final DropCommand droppingCommand = new DropCommand (shootingSubsystem);
         private final ShootingAnimationCommand shootingAnimation = new ShootingAnimationCommand(lightSubSystem);
         private final IntakeAnimationCommand intakeAnimationCommand = new IntakeAnimationCommand(lightSubSystem);
         private final NoteCollectedAnimationCommand noteCollectedAnimationCommand = new NoteCollectedAnimationCommand(
@@ -68,8 +68,8 @@ public class RobotContainer {
                         .withTimeout(15);
 
         private final Command Rotate = Drive
-                        .driveRotateAngle(30)
-                        .withTimeout(15);
+                        .driveRotateAngle(15)
+                        .withTimeout(3);
 
         private Command ShootCommand = new ParallelCommandGroup(
                         new SequentialCommandGroup(
@@ -83,27 +83,28 @@ public class RobotContainer {
                                                                         shootingSubsystem.StopCommand(),
                                                                         feederSubsystem.StopCommand()))),
                         shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
+                                        .until(shootingSubsystem.NoteSwitchNotPressed())).withTimeout(3);
+        private Command DropCommand = new ParallelCommandGroup(
+                        new SequentialCommandGroup(
+                                        droppingCommand.withTimeout(1)
+                                                        .asProxy()
+                                                        .andThen(feedCommand)
+                                                        .onlyIf(shootingSubsystem.NoteSwitchPressed())
+                                                        .until(shootingSubsystem.NoteSwitchNotPressed()),
+                                        new WaitCommand(0.5).andThen(
+                                                        new ParallelCommandGroup(
+                                                                        shootingSubsystem.StopCommand(),
+                                                                        feederSubsystem.StopCommand()))),
+                        shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
                                         .until(shootingSubsystem.NoteSwitchNotPressed()));
-        // private Command DropCommand = new ParallelCommandGroup(
-        //                 new SequentialCommandGroup(
-        //                                 dropingCommand.withTimeout(1)
-        //                                                 .asProxy()
-        //                                                 .andThen(feedCommand)
-        //                                                 .onlyIf(shootingSubsystem.NoteSwitchPressed())
-        //                                                 .until(shootingSubsystem.NoteSwitchNotPressed()),
-        //                                 new WaitCommand(0.5).andThen(
-        //                                                 new ParallelCommandGroup(
-        //                                                                 shootingSubsystem.StopCommand(),
-        //                                                                 feederSubsystem.StopCommand()))),
-        //                 shootingAnimation.onlyIf(shootingSubsystem.NoteSwitchPressed())
-        //                                 .until(shootingSubsystem.NoteSwitchNotPressed()));
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
                 m_chooser.setDefaultOption("Shoot", ShootCommand);
-                 m_chooser.addOption("Shoot and drive", ShootCommand.andThen(DriveInches));
+                m_chooser.addOption("Shoot and drive", new SequentialCommandGroup(ShootCommand, DriveInches));
+                 m_chooser.addOption("Shoot, rotate, drive", new SequentialCommandGroup(ShootCommand, Rotate, DriveInches));
                 m_chooser.addOption("Drive", DriveInches);
                 SmartDashboard.putData("Auto choices", m_chooser);
                 // Configure the trigger bindings
@@ -121,11 +122,12 @@ public class RobotContainer {
                                                 .until(shootingSubsystem.NoteSwitchPressed())
                                                 .andThen(noteCollectedAnimationCommand).withTimeout(1));
 
-                m_driverController.x().toggleOnTrue(ShootCommand);
-                // m_driverController.y().toggleOnTrue(DropCommand);
 
-                m_driverController.a().whileTrue(cimberSubsystem.Climb());
-                m_driverController.b().whileTrue(cimberSubsystem.Lower());
+                m_driverController.x().toggleOnTrue(ShootCommand);
+                m_driverController.y().toggleOnTrue(DropCommand);
+
+                m_driverController.a().whileTrue(climberSubsystem.Climb());
+                m_driverController.b().whileTrue(climberSubsystem.Lower());
 
                 Drive.setDefaultCommand(
                                 Drive.arcadeDriveCommand(
