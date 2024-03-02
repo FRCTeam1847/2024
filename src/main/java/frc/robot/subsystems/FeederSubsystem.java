@@ -3,15 +3,14 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix6.hardware.TalonFX;
-
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class FeederSubsystem extends SubsystemBase {
-  private TalonFX m_motor = new TalonFX(6, "rio");
+  // private TalonFX m_motor = new TalonFX(6, "rio");
+    private final CANSparkMax m_motor = new CANSparkMax(5, MotorType.kBrushless);
 
   /** Creates a new Feeder. */
   public FeederSubsystem() {

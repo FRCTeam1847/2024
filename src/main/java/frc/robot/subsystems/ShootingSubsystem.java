@@ -35,6 +35,9 @@ public class ShootingSubsystem extends SubsystemBase {
   public void ShootNote() {
     m_motor.set(ControlMode.PercentOutput, 0.75);
   }
+  public void DropNote() {
+    m_motor.set(ControlMode.PercentOutput, 0.5);
+  }
 
   public void Stop() {
     m_motor.stopMotor();
