@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DropCommand;
 import frc.robot.commands.IntakeAnimationCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShootCommand;
@@ -47,6 +48,7 @@ public class RobotContainer {
         // private final IntakeAnimationCommand intakeAnimationCommand = new IntakeAnimationCommand(lightSubSystem);
         private final IntakeCommand intakeCommand = new IntakeCommand(launchSubsystem);
         private final ShootCommand shootCommand = new ShootCommand(launchSubsystem);
+        private final DropCommand dropCommand = new DropCommand(launchSubsystem);
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -54,7 +56,7 @@ public class RobotContainer {
         public RobotContainer() {
                 m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(Drive, 24));
                 m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(Drive, 24, -30));
-                m_chooser.addOption("Shoot and drive back", intakeCommand);
+                m_chooser.addOption("Shoot and drive back", Autos.ShootRotateDriveBackwards(Drive, launchSubsystem));
                 SmartDashboard.putData("Auto choices", m_chooser);
                 // Configure the trigger bindings
                 configureBindings();
@@ -67,10 +69,13 @@ public class RobotContainer {
 
                 m_driverController.y().toggleOnTrue(intakeCommand);
 
-                // // Launcher Shoot
+                // Launcher
                 m_driverController
                                 .x()
                                 .toggleOnTrue(shootCommand);
+                m_driverController
+                                .y()
+                                .toggleOnTrue(dropCommand);
                 // Climber
                 m_driverController.a().whileTrue(climberSubsystem.Climb());
                 m_driverController.b().whileTrue(climberSubsystem.Lower());
