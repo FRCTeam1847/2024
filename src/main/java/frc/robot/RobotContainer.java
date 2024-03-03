@@ -5,7 +5,10 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.Autos;
 import frc.robot.commands.IntakeAnimationCommand;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.ShootCommand;
 import frc.robot.commands.ShootingAnimationCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveTrainSubsystem;
@@ -35,48 +38,39 @@ public class RobotContainer {
 
         // The robot's subsystems
         private final LauncherSubsystem launchSubsystem = new LauncherSubsystem();
-        private final LightsSubsystem lightSubSystem = new LightsSubsystem();
+        // private final LightsSubsystem lightSubSystem = new LightsSubsystem();
         private final DriveTrainSubsystem Drive = new DriveTrainSubsystem();
         private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
         // The robots commands
-        private final ShootingAnimationCommand shootingAnimation = new ShootingAnimationCommand(lightSubSystem);
-        private final IntakeAnimationCommand intakeAnimationCommand = new IntakeAnimationCommand(lightSubSystem);
-
-        private final Command DriveInches = Drive
-                        .driveDistanceCommand(24, 0.5)
-                        .withTimeout(15);
-
-        private final Command Rotate = Drive
-                        .driveRotateAngle(-30)
-                        .withTimeout(5);
-
-        private final Command IntakeCommand = new ParallelCommandGroup(launchSubsystem.intakeCommand(),
-                        intakeAnimationCommand);
-
-        private final Command ShootingCommand = new ParallelCommandGroup(launchSubsystem.shootingCommand(),
-                        shootingAnimation);
+        // private final ShootingAnimationCommand shootingAnimation = new ShootingAnimationCommand(lightSubSystem);
+        // private final IntakeAnimationCommand intakeAnimationCommand = new IntakeAnimationCommand(lightSubSystem);
+        private final IntakeCommand intakeCommand = new IntakeCommand(launchSubsystem);
+        private final ShootCommand shootCommand = new ShootCommand(launchSubsystem);
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-                m_chooser.setDefaultOption("Drive Inches", DriveInches);
-                m_chooser.addOption("Shoot", ShootingCommand);
+                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(Drive, 24));
+                m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(Drive, 24, -30));
+                m_chooser.addOption("Shoot and drive back", intakeCommand);
                 SmartDashboard.putData("Auto choices", m_chooser);
                 // Configure the trigger bindings
                 configureBindings();
         }
 
         private void configureBindings() {
-                // Launcher autos
-                // new Trigger(launchSubsystem.TopSwitchPressed())
-                // .onTrue(IntakeCommand);
-                m_driverController.y().toggleOnTrue(IntakeCommand);
+                // Intake logic
+                new Trigger(launchSubsystem.hasTopNote)
+                                .onTrue(intakeCommand);
+
+                m_driverController.y().toggleOnTrue(intakeCommand);
+
                 // // Launcher Shoot
                 m_driverController
                                 .x()
-                                .toggleOnTrue(ShootingCommand);
+                                .toggleOnTrue(shootCommand);
                 // Climber
                 m_driverController.a().whileTrue(climberSubsystem.Climb());
                 m_driverController.b().whileTrue(climberSubsystem.Lower());
