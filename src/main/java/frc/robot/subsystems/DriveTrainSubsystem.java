@@ -114,5 +114,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Left Encoder", leftEncoder.getDistance());
     SmartDashboard.putNumber("Right Encoder", rightEncoder.getDistance());
     SmartDashboard.putNumber("Gyro", gyro.getAngle());
+    SmartDashboard.putNumber("Camera TX", table.getEntry("tx").getDouble(0.0));
+    SmartDashboard.putNumber("Camera Ty", table.getEntry("ty").getDouble(0.0));
   }
 }
