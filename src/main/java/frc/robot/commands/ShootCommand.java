@@ -7,9 +7,13 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LauncherSubsystem;
+import frc.robot.subsystems.LightsSubsystem;
 
 public class ShootCommand extends Command {
-  LauncherSubsystem launcherSubsystem;
+  private LauncherSubsystem launcherSubsystem;
+  private LightsSubsystem lightsSubsystem;
+
+  int OnIndex;
 
   double maxSpeed = 0.9;
   double feedSpeed = 0.5;
@@ -20,9 +24,10 @@ public class ShootCommand extends Command {
   private Timer localTimer = new Timer();
 
   /** Creates a new ShootCommand. */
-  public ShootCommand(LauncherSubsystem _launcherSubsystem) {
+  public ShootCommand(LauncherSubsystem _launcherSubsystem, LightsSubsystem _lightsSubsystem) {
     launcherSubsystem = _launcherSubsystem;
-    addRequirements(_launcherSubsystem);
+    lightsSubsystem = _lightsSubsystem;
+    addRequirements(_launcherSubsystem, _lightsSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -32,6 +37,8 @@ public class ShootCommand extends Command {
       launcherSubsystem.m_feed.set(maxSpeed);
       localTimer.reset();
       localTimer.start();
+      OnIndex = 0;
+      lightsSubsystem.LightsOff();
     } else {
       System.out.println("Missing Note");
     }
@@ -42,6 +49,25 @@ public class ShootCommand extends Command {
   public void execute() {
     if (launcherSubsystem.m_launch.getMotorOutputPercent() >= maxSpeed && localTimer.get() > waitTime) {
       launcherSubsystem.m_feed.set(feedSpeed);
+      if (OnIndex < 19) {
+        // Left side
+        lightsSubsystem.m_ledBuffer.setLED(OnIndex, lightsSubsystem.offColor);
+        lightsSubsystem.m_ledBuffer.setLED(OnIndex + 1, lightsSubsystem.greenColor);
+
+        // // Right side
+        lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - OnIndex, lightsSubsystem.offColor);
+        lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - (OnIndex + 1), lightsSubsystem.greenColor);
+        OnIndex++;
+      } else {
+        // Left side
+        lightsSubsystem.m_ledBuffer.setLED(OnIndex, lightsSubsystem.offColor);
+        lightsSubsystem.m_ledBuffer.setLED(0, lightsSubsystem.offColor);
+        // Right side
+        lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - OnIndex, lightsSubsystem.offColor);
+        lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights, lightsSubsystem.greenColor);
+
+        OnIndex = 0;
+      }
     } else {
       System.out.println(String.format("Waiting for speed! Time: %,.2f", localTimer.get()));
     }
@@ -51,6 +77,10 @@ public class ShootCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     launcherSubsystem.StopMotors();
+    for (var i = 0; i < 19; i++) {
+      lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
+      lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
+    }
   }
 
   // Returns true when the command should end.

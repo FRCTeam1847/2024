@@ -7,10 +7,8 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DropCommand;
-import frc.robot.commands.IntakeAnimationCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShootCommand;
-import frc.robot.commands.ShootingAnimationCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveTrainSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
@@ -18,7 +16,6 @@ import frc.robot.subsystems.LightsSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -38,26 +35,35 @@ public class RobotContainer {
         private final SendableChooser<Command> m_chooser = new SendableChooser<>();
 
         // The robot's subsystems
-        private final LauncherSubsystem launchSubsystem = new LauncherSubsystem();
-        // private final LightsSubsystem lightSubSystem = new LightsSubsystem();
-        private final DriveTrainSubsystem Drive = new DriveTrainSubsystem();
-        private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+        private final LauncherSubsystem launchSubsystem;
+        private final LightsSubsystem lightSubSystem;
+        private final DriveTrainSubsystem driveSyubsystem;
+        private final ClimberSubsystem climberSubsystem;
 
         // The robots commands
-        // private final ShootingAnimationCommand shootingAnimation = new ShootingAnimationCommand(lightSubSystem);
-        // private final IntakeAnimationCommand intakeAnimationCommand = new IntakeAnimationCommand(lightSubSystem);
-        private final IntakeCommand intakeCommand = new IntakeCommand(launchSubsystem);
-        private final ShootCommand shootCommand = new ShootCommand(launchSubsystem);
-        private final DropCommand dropCommand = new DropCommand(launchSubsystem);
+        private final IntakeCommand intakeCommand;
+        private final ShootCommand shootCommand;
+        private final DropCommand dropCommand;
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(Drive, 24));
-                m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(Drive, 24, -30));
-                m_chooser.addOption("Shoot and drive back", Autos.ShootRotateDriveBackwards(Drive, launchSubsystem));
+
+                launchSubsystem = new LauncherSubsystem();
+                lightSubSystem = new LightsSubsystem();
+                driveSyubsystem = new DriveTrainSubsystem();
+                climberSubsystem = new ClimberSubsystem();
+
+                intakeCommand = new IntakeCommand(launchSubsystem, lightSubSystem);
+                shootCommand = new ShootCommand(launchSubsystem, lightSubSystem);
+                dropCommand = new DropCommand(launchSubsystem, lightSubSystem);
+
+                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSyubsystem, 24));
+                m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(driveSyubsystem, 24, -30));
+                m_chooser.addOption("Shoot and drive back", Autos.ShootRotateDriveBackwards(driveSyubsystem, launchSubsystem, lightSubSystem));
                 SmartDashboard.putData("Auto choices", m_chooser);
+
                 // Configure the trigger bindings
                 configureBindings();
         }
@@ -80,8 +86,8 @@ public class RobotContainer {
                 m_driverController.a().whileTrue(climberSubsystem.Climb());
                 m_driverController.b().whileTrue(climberSubsystem.Lower());
                 // Driver
-                Drive.setDefaultCommand(
-                                Drive.arcadeDriveCommand(
+                driveSyubsystem.setDefaultCommand(
+                                driveSyubsystem.arcadeDriveCommand(
                                                 () -> -m_driverController.getLeftY(),
                                                 () -> -m_driverController.getLeftX()));
         }
