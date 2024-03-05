@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
@@ -13,6 +14,10 @@ public class IntakeCommand extends Command {
   private LightsSubsystem lightsSubsystem;
   int counter;
   int OnIndex;
+  double timeoutTime = 1;
+
+  // Only need this if we have to use time stuff
+  private Timer localTimer = new Timer();
 
   /** Creates a new IntakeCommand. */
   public IntakeCommand(LauncherSubsystem _launcherSubsystem, LightsSubsystem _lightsSubsystem) {
@@ -28,8 +33,10 @@ public class IntakeCommand extends Command {
       counter = 0;
       OnIndex = 19;
       lightsSubsystem.LightsOff();
-      launcherSubsystem.m_feed.set(-0.25);
-      launcherSubsystem.m_launch.set(-0.5);
+      launcherSubsystem.setFeedWheel(-0.5);
+      launcherSubsystem.setLaunchWheel(-0.5);
+      localTimer.reset();
+      localTimer.start();
     } else {
       System.out.println("No Note is present");
     }
@@ -70,13 +77,13 @@ public class IntakeCommand extends Command {
     launcherSubsystem.StopMotors();
     for (var i = 0; i < 19; i++) {
       lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.greenColor);
-      lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights-i, lightsSubsystem.greenColor);
+      lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.greenColor);
     }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return launcherSubsystem.getBottomSwitchValue();
+    return launcherSubsystem.getBottomSwitchValue() || localTimer.get() >= timeoutTime;
   }
 }

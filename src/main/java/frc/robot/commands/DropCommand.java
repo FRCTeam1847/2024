@@ -35,7 +35,10 @@ public class DropCommand extends Command {
   @Override
   public void initialize() {
     if (launcherSubsystem.getBottomSwitchValue()) {
-      launcherSubsystem.m_feed.set(maxSpeed);
+      launcherSubsystem.setLaunchWheel(maxSpeed);
+      OnIndex = 0;
+      counter = 0;
+      lightsSubsystem.LightsOff();
       localTimer.reset();
       localTimer.start();
     } else {
@@ -46,8 +49,8 @@ public class DropCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (launcherSubsystem.m_launch.getMotorOutputPercent() >= maxSpeed && localTimer.get() > waitTime) {
-      launcherSubsystem.m_feed.set(feedSpeed);
+    if (localTimer.get() >= waitTime) {
+      launcherSubsystem.setFeedWheel(feedSpeed);
       if (counter > 1) {
         counter = 0;
         if (OnIndex < 19) {
@@ -69,7 +72,6 @@ public class DropCommand extends Command {
 
           OnIndex = 0;
         }
-
       }
       counter++;
     } else {
@@ -81,6 +83,10 @@ public class DropCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     launcherSubsystem.StopMotors();
+    for (var i = 0; i < 19; i++) {
+      lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
+      lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
+    }
   }
 
   // Returns true when the command should end.

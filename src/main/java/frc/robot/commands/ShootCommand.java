@@ -14,11 +14,10 @@ public class ShootCommand extends Command {
   private LightsSubsystem lightsSubsystem;
 
   int OnIndex;
-
-  double maxSpeed = 0.9;
-  double feedSpeed = 0.5;
-  double timeoutTime = 2;
+  double maxSpeed = 1;
+  double feedSpeed = 1;
   double waitTime = 1;
+  double timeoutTime = 2;
 
   // Only need this if we have to use time stuff
   private Timer localTimer = new Timer();
@@ -34,7 +33,7 @@ public class ShootCommand extends Command {
   @Override
   public void initialize() {
     if (launcherSubsystem.getBottomSwitchValue()) {
-      launcherSubsystem.m_feed.set(maxSpeed);
+      launcherSubsystem.setLaunchWheel(maxSpeed);
       localTimer.reset();
       localTimer.start();
       OnIndex = 0;
@@ -47,8 +46,8 @@ public class ShootCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (launcherSubsystem.m_launch.getMotorOutputPercent() >= maxSpeed && localTimer.get() > waitTime) {
-      launcherSubsystem.m_feed.set(feedSpeed);
+    if ( localTimer.get() >= waitTime) {
+      launcherSubsystem.setFeedWheel(feedSpeed);
       if (OnIndex < 19) {
         // Left side
         lightsSubsystem.m_ledBuffer.setLED(OnIndex, lightsSubsystem.offColor);
@@ -86,6 +85,6 @@ public class ShootCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !launcherSubsystem.getBottomSwitchValue() || localTimer.get() > timeoutTime;
+    return  localTimer.get() > timeoutTime;
   }
 }

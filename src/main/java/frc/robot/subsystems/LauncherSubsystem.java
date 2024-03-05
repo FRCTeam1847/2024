@@ -4,25 +4,31 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-
 public class LauncherSubsystem extends SubsystemBase {
   public final WPI_TalonSRX m_launch = new WPI_TalonSRX(1);
   public final CANSparkMax m_feed = new CANSparkMax(5, MotorType.kBrushless);
 
+  boolean engaged = false;
+
   /** Creates a new Launcher. */
   public LauncherSubsystem() {
     m_launch.setInverted(true);
+    m_launch.setNeutralMode(NeutralMode.Brake);
+    m_feed.setIdleMode(IdleMode.kBrake);
   }
 
   public void StopMotors() {
+    engaged = false;
     m_launch.stopMotor();
     m_feed.stopMotor();
   }
@@ -36,15 +42,16 @@ public class LauncherSubsystem extends SubsystemBase {
   }
 
   public void setLaunchWheel(double speed) {
+    engaged = true;
     m_launch.set(speed);
   }
 
   public void setFeedWheel(double speed) {
+    engaged = true;
     m_feed.set(speed);
   }
 
-  public final Trigger hasTopNote = new Trigger(()->getTopSwitchValue());
-
+  public final Trigger hasTopNote = new Trigger(() -> !engaged && getTopSwitchValue());
 
   @Override
   public void periodic() {

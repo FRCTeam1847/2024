@@ -69,11 +69,11 @@ public class RobotContainer {
         }
 
         private void configureBindings() {
-                // Intake logic
+                // // Intake logic
                 new Trigger(launchSubsystem.hasTopNote)
                                 .onTrue(intakeCommand);
 
-                m_driverController.y().toggleOnTrue(intakeCommand);
+                //  m_driverController.leftBumper().toggleOnTrue(intakeCommand);
 
                 // Launcher
                 m_driverController

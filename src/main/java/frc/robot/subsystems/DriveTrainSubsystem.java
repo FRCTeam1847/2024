@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -47,6 +48,11 @@ public class DriveTrainSubsystem extends SubsystemBase {
     m_rightDrive1 = new CANSparkMax(4, MotorType.kBrushless);
     m_leftDrive2 = new CANSparkMax(2, MotorType.kBrushless);
     m_rightDrive2 = new CANSparkMax(3, MotorType.kBrushless);
+    m_leftDrive1.setIdleMode(IdleMode.kBrake);
+    m_leftDrive2.setIdleMode(IdleMode.kBrake);
+    m_rightDrive1.setIdleMode(IdleMode.kBrake);
+    m_rightDrive2.setIdleMode(IdleMode.kBrake);
+
     leftEncoder = new Encoder(2, 3);
     rightEncoder = new Encoder(1, 0);
     gyro = new WPI_PigeonIMU(0);

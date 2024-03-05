@@ -27,6 +27,8 @@ public class DriveBackwardsDistance extends Command {
   @Override
   public void initialize() {
     driveTrainSubsystem.gyro.reset();
+    driveTrainSubsystem.leftEncoder.reset();
+    driveTrainSubsystem.rightEncoder.reset();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -45,11 +47,12 @@ public class DriveBackwardsDistance extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    driveTrainSubsystem.Stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.max(driveTrainSubsystem.leftEncoder.getDistance(), driveTrainSubsystem.rightEncoder.getDistance()) > distance;
+    return driveTrainSubsystem.leftEncoder.getDistance() < -distance ||  driveTrainSubsystem.rightEncoder.getDistance() < -distance;
   }
 }
