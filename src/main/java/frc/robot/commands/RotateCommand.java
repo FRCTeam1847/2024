@@ -11,12 +11,12 @@ public class RotateCommand extends Command {
 
   DriveTrainSubsystem driveTrainSubsystem;
   double speed = 0.5;
-  double angle = 0;
+  double targetAngle = 0;
 
   /** Creates a new RotateCommand. */
   public RotateCommand(DriveTrainSubsystem _driveTrainSubsystem, double _angle) {
     driveTrainSubsystem = _driveTrainSubsystem;
-    angle = _angle;
+    targetAngle = _angle;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(_driveTrainSubsystem);
   }
@@ -30,12 +30,8 @@ public class RotateCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double currentAngle = driveTrainSubsystem.gyro.getAngle();
-    if (currentAngle < angle) {
-      driveTrainSubsystem.ArcadeDrive(0, speed, false);
-    } else if (angle > angle) {
-      driveTrainSubsystem.ArcadeDrive(0, -speed, false);
-    }
+    double turn = targetAngle < 0 ? -speed : speed;
+    driveTrainSubsystem.ArcadeDrive(0, turn, false);
   }
 
   // Called once the command ends or is interrupted.
@@ -47,6 +43,6 @@ public class RotateCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return driveTrainSubsystem.gyro.getAngle() < angle || driveTrainSubsystem.gyro.getAngle() > angle;
+    return Math.abs(driveTrainSubsystem.gyro.getAngle()) >= Math.abs(targetAngle);
   }
 }

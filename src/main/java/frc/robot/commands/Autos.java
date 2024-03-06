@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.DriveTrainSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
@@ -20,11 +21,20 @@ public final class Autos {
     return Commands.sequence(new DriveBackwardsDistance(subsystem, inches), new RotateCommand(subsystem, degrees));
   }
 
+  public static Command Rotate(DriveTrainSubsystem subsystem, double degrees) {
+    return Commands.sequence(new RotateCommand(subsystem, degrees));
+  }
+
   public static Command ShootRotateDriveBackwards(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
       LightsSubsystem lightsSubsystem) {
-    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem),
-        new ShootCommand(launcherSubsystem, lightsSubsystem), new RotateCommand(subsystem, -30),
-        new DriveBackwardsDistance(subsystem, 24));
+    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem),new WaitCommand(0.3),
+        new ShootCommand(launcherSubsystem, lightsSubsystem), 
+        new DriveBackwardsDistance(subsystem, 40));
+  }
+
+  public static Command ShootAuto(LauncherSubsystem launcherSubsystem,
+      LightsSubsystem lightsSubsystem) {
+    return Commands.sequence(new ShootCommand(launcherSubsystem, lightsSubsystem));
   }
 
   private Autos() {

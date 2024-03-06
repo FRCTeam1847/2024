@@ -14,7 +14,7 @@ public class IntakeCommand extends Command {
   private LightsSubsystem lightsSubsystem;
   int counter;
   int OnIndex;
-  double timeoutTime = 1;
+  double timeoutTime = 0.5;
 
   // Only need this if we have to use time stuff
   private Timer localTimer = new Timer();
@@ -33,8 +33,8 @@ public class IntakeCommand extends Command {
       counter = 0;
       OnIndex = 19;
       lightsSubsystem.LightsOff();
-      launcherSubsystem.setFeedWheel(-0.5);
-      launcherSubsystem.setLaunchWheel(-0.5);
+      launcherSubsystem.setFeedWheel(-0.29);
+      launcherSubsystem.setLaunchWheel(-0.4);
       localTimer.reset();
       localTimer.start();
     } else {

@@ -16,8 +16,8 @@ public class ShootCommand extends Command {
   int OnIndex;
   double maxSpeed = 1;
   double feedSpeed = 1;
-  double waitTime = 1;
-  double timeoutTime = 2;
+  double waitTime = 0.3;
+  double timeoutTime = 1;
 
   // Only need this if we have to use time stuff
   private Timer localTimer = new Timer();
@@ -47,7 +47,7 @@ public class ShootCommand extends Command {
   @Override
   public void execute() {
     if ( localTimer.get() >= waitTime) {
-      launcherSubsystem.setFeedWheel(feedSpeed);
+      
       if (OnIndex < 19) {
         // Left side
         lightsSubsystem.m_ledBuffer.setLED(OnIndex, lightsSubsystem.offColor);
@@ -67,6 +67,7 @@ public class ShootCommand extends Command {
 
         OnIndex = 0;
       }
+      launcherSubsystem.setFeedWheel(feedSpeed);
     } else {
       System.out.println(String.format("Waiting for speed! Time: %,.2f", localTimer.get()));
     }

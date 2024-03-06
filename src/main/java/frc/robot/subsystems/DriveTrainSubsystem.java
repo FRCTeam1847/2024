@@ -35,6 +35,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
 
   private static final double cpr = 360;
   private static final double whd = 6;
+  private static final double distancePerPulse = Math.PI * (whd / cpr);
 
   private final DifferentialDrive Drive;
   public final WPI_PigeonIMU gyro;
@@ -62,8 +63,8 @@ public class DriveTrainSubsystem extends SubsystemBase {
     m_rightDrive2.follow(m_rightDrive1);
     Drive = new DifferentialDrive(m_leftDrive1, m_rightDrive1);
     // set up encoders
-    leftEncoder.setDistancePerPulse(Math.PI * (whd / cpr));
-    rightEncoder.setDistancePerPulse(Math.PI * (whd / cpr));
+    leftEncoder.setDistancePerPulse(distancePerPulse);
+    rightEncoder.setDistancePerPulse(distancePerPulse);
     rightEncoder.setReverseDirection(true);
     leftEncoder.setReverseDirection(true);
     leftEncoder.reset();

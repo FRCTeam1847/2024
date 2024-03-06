@@ -18,8 +18,8 @@ public class DropCommand extends Command {
 
   double maxSpeed = 0.5;
   double feedSpeed = 0.5;
-  double timeoutTime = 2;
-  double waitTime = 1;
+  double timeoutTime = 0.5;
+  double waitTime = 0.3;
 
   // Only need this if we have to use time stuff
   private Timer localTimer = new Timer();
@@ -50,7 +50,6 @@ public class DropCommand extends Command {
   @Override
   public void execute() {
     if (localTimer.get() >= waitTime) {
-      launcherSubsystem.setFeedWheel(feedSpeed);
       if (counter > 1) {
         counter = 0;
         if (OnIndex < 19) {
@@ -74,6 +73,7 @@ public class DropCommand extends Command {
         }
       }
       counter++;
+      launcherSubsystem.setFeedWheel(feedSpeed);
     } else {
       System.out.println(String.format("Waiting for speed! Time: %,.2f", localTimer.get()));
     }

@@ -60,6 +60,7 @@ public class RobotContainer {
                 dropCommand = new DropCommand(launchSubsystem, lightSubSystem);
 
                 m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSyubsystem, 24));
+                m_chooser.setDefaultOption("Rotate", Autos.Rotate(driveSyubsystem, 30));
                 m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(driveSyubsystem, 24, -30));
                 m_chooser.addOption("Shoot and drive back", Autos.ShootRotateDriveBackwards(driveSyubsystem, launchSubsystem, lightSubSystem));
                 SmartDashboard.putData("Auto choices", m_chooser);
