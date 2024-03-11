@@ -15,8 +15,8 @@ public class ShootCommand extends Command {
 
   int OnIndex;
   double maxSpeed = 1;
-  double feedSpeed = 1;
-  double waitTime = 0.3;
+  double feedSpeed = 0.5;
+  double waitTime = 0.4;
   double timeoutTime = 1;
 
   // Only need this if we have to use time stuff
@@ -32,22 +32,22 @@ public class ShootCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (launcherSubsystem.getBottomSwitchValue()) {
+    // if (launcherSubsystem.getBottomSwitchValue()) {
       launcherSubsystem.setLaunchWheel(maxSpeed);
       localTimer.reset();
       localTimer.start();
+      launcherSubsystem.enableLaunchMode();
       OnIndex = 0;
       lightsSubsystem.LightsOff();
-    } else {
-      System.out.println("Missing Note");
-    }
+    // } else {
+    //   System.out.println("Missing Note");
+    // }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if ( localTimer.get() >= waitTime) {
-      
+    if ( localTimer.get() >= waitTime) {  
       if (OnIndex < 19) {
         // Left side
         lightsSubsystem.m_ledBuffer.setLED(OnIndex, lightsSubsystem.offColor);
@@ -77,6 +77,7 @@ public class ShootCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     launcherSubsystem.StopMotors();
+    launcherSubsystem.disableLaunchMode();
     for (var i = 0; i < 19; i++) {
       lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
       lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);

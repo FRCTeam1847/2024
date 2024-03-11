@@ -27,14 +27,34 @@ public final class Autos {
 
   public static Command ShootRotateDriveBackwards(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
       LightsSubsystem lightsSubsystem) {
-    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem),new WaitCommand(0.3),
-        new ShootCommand(launcherSubsystem, lightsSubsystem), 
-        new DriveBackwardsDistance(subsystem, 40));
+    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
+        new ShootCommand(launcherSubsystem, lightsSubsystem),
+        new DriveBackwardsDistance(subsystem, 40), new WaitCommand(0.25), new RotateCommand(subsystem, 140));
+  }
+
+  public static Command ShootDriveBackwardsLeft(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
+      LightsSubsystem lightsSubsystem) {
+    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
+        new ShootCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(0.5),
+        new DriveBackwardsDistance(subsystem, 12), new WaitCommand(0.5), 
+        new RotateCommand(subsystem, -25),
+        new WaitCommand(0.5),
+        new DriveBackwardsDistance(subsystem, 45));
+  }
+  public static Command ShootDriveBackwardsRight(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
+      LightsSubsystem lightsSubsystem) {
+    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
+        new ShootCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(0.5),
+        new DriveBackwardsDistance(subsystem, 12), new WaitCommand(0.5), 
+        new RotateCommand(subsystem, 25),
+        new WaitCommand(0.5),
+        new DriveBackwardsDistance(subsystem, 45));
   }
 
   public static Command ShootAuto(LauncherSubsystem launcherSubsystem,
       LightsSubsystem lightsSubsystem) {
-    return Commands.sequence(new ShootCommand(launcherSubsystem, lightsSubsystem));
+    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
+        new ShootCommand(launcherSubsystem, lightsSubsystem));
   }
 
   private Autos() {

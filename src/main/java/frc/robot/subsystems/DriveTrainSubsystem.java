@@ -57,6 +57,7 @@ public class DriveTrainSubsystem extends SubsystemBase {
     leftEncoder = new Encoder(2, 3);
     rightEncoder = new Encoder(1, 0);
     gyro = new WPI_PigeonIMU(0);
+    gyro.reset();
     // Set up Drive
     m_rightDrive1.setInverted(true);
     m_leftDrive2.follow(m_leftDrive1);

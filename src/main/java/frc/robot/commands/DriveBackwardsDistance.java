@@ -12,7 +12,7 @@ public class DriveBackwardsDistance extends Command {
 
   double angle;
   double speed = -0.5;
-  double maxAngle = 2;
+  double maxAngle = 1;
   double distance = 0.0;
 
   /** Creates a new DriveStraightDistance. */

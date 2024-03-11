@@ -13,6 +13,8 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveTrainSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,6 +41,7 @@ public class RobotContainer {
         private final LightsSubsystem lightSubSystem;
         private final DriveTrainSubsystem driveSyubsystem;
         private final ClimberSubsystem climberSubsystem;
+        private final Compressor m_compressor;
 
         // The robots commands
         private final IntakeCommand intakeCommand;
@@ -59,38 +62,47 @@ public class RobotContainer {
                 shootCommand = new ShootCommand(launchSubsystem, lightSubSystem);
                 dropCommand = new DropCommand(launchSubsystem, lightSubSystem);
 
-                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSyubsystem, 24));
-                m_chooser.setDefaultOption("Rotate", Autos.Rotate(driveSyubsystem, 30));
-                m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(driveSyubsystem, 24, -30));
-                m_chooser.addOption("Shoot and drive back", Autos.ShootRotateDriveBackwards(driveSyubsystem, launchSubsystem, lightSubSystem));
+                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSyubsystem, 35));
+                m_chooser.setDefaultOption("Rotate", Autos.Rotate(driveSyubsystem, 15));
+                m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(driveSyubsystem, 40, 90));
+                m_chooser.addOption("Shoot and drive back",
+                                Autos.ShootRotateDriveBackwards(driveSyubsystem, launchSubsystem, lightSubSystem));
+                m_chooser.addOption("Left shoot and drive back",
+                                Autos.ShootDriveBackwardsLeft(driveSyubsystem, launchSubsystem, lightSubSystem));
+                m_chooser.addOption("Right shoot and drive back",
+                                Autos.ShootDriveBackwardsRight(driveSyubsystem, launchSubsystem, lightSubSystem));
+                m_chooser.addOption("Shoot", Autos.ShootAuto(launchSubsystem, lightSubSystem));
                 SmartDashboard.putData("Auto choices", m_chooser);
 
+                m_compressor = new Compressor(PneumaticsModuleType.REVPH);
                 // Configure the trigger bindings
                 configureBindings();
         }
 
         private void configureBindings() {
-                // // Intake logic
-                new Trigger(launchSubsystem.hasTopNote)
-                                .onTrue(intakeCommand);
+                m_compressor.enableDigital();
+                // // // Intake logic
+                // new Trigger(launchSubsystem.hasTopNote)
+                //                 .onTrue(intakeCommand);
 
-                //  m_driverController.leftBumper().toggleOnTrue(intakeCommand);
+                m_driverController.leftStick().toggleOnTrue(intakeCommand);
 
                 // Launcher
                 m_driverController
-                                .x()
+                                .leftBumper()
                                 .toggleOnTrue(shootCommand);
                 m_driverController
-                                .y()
+                                .rightBumper()
                                 .toggleOnTrue(dropCommand);
                 // Climber
-                m_driverController.a().whileTrue(climberSubsystem.Climb());
-                m_driverController.b().whileTrue(climberSubsystem.Lower());
+                m_driverController.leftTrigger().whileTrue(climberSubsystem.Climb());
+                m_driverController.rightTrigger().whileTrue(climberSubsystem.Lower());
                 // Driver
                 driveSyubsystem.setDefaultCommand(
                                 driveSyubsystem.arcadeDriveCommand(
                                                 () -> -m_driverController.getLeftY(),
                                                 () -> -m_driverController.getLeftX()));
+
         }
 
         /**

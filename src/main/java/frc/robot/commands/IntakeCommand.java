@@ -29,16 +29,16 @@ public class IntakeCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (launcherSubsystem.getTopSwitchValue()) {
+    if (!launcherSubsystem.noteSwitch.get()) {
       counter = 0;
       OnIndex = 19;
       lightsSubsystem.LightsOff();
-      launcherSubsystem.setFeedWheel(-0.29);
+      launcherSubsystem.setFeedWheel(-0.2);
       launcherSubsystem.setLaunchWheel(-0.4);
       localTimer.reset();
       localTimer.start();
     } else {
-      System.out.println("No Note is present");
+      System.out.println("No Note");
     }
   }
 
@@ -75,15 +75,24 @@ public class IntakeCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     launcherSubsystem.StopMotors();
-    for (var i = 0; i < 19; i++) {
-      lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.greenColor);
-      lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.greenColor);
+    if (launcherSubsystem.noteSwitch.get()) {
+      for (var i = 0; i < 19; i++) {
+        lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.greenColor);
+        lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.greenColor);
+      }
     }
+    else{
+      for (var i = 0; i < 19; i++) {
+        lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
+        lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
+      }
+    }
+
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return launcherSubsystem.getBottomSwitchValue() || localTimer.get() >= timeoutTime;
+    return localTimer.get() >= timeoutTime;
   }
 }

@@ -18,7 +18,7 @@ public class DropCommand extends Command {
 
   double maxSpeed = 0.5;
   double feedSpeed = 0.5;
-  double timeoutTime = 0.5;
+  double timeoutTime = 0.6;
   double waitTime = 0.3;
 
   // Only need this if we have to use time stuff
@@ -34,16 +34,17 @@ public class DropCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (launcherSubsystem.getBottomSwitchValue()) {
+    // if (launcherSubsystem.getBottomSwitchValue()) {
       launcherSubsystem.setLaunchWheel(maxSpeed);
       OnIndex = 0;
       counter = 0;
       lightsSubsystem.LightsOff();
+      // launcherSubsystem.enableLaunchMode();
       localTimer.reset();
       localTimer.start();
-    } else {
-      System.out.println("Missing Note");
-    }
+    // } else {
+    //   System.out.println("Missing Note");
+    // }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -83,6 +84,7 @@ public class DropCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     launcherSubsystem.StopMotors();
+    launcherSubsystem.disableLaunchMode();
     for (var i = 0; i < 19; i++) {
       lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
       lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
@@ -92,6 +94,6 @@ public class DropCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !launcherSubsystem.getBottomSwitchValue() || localTimer.get() > timeoutTime;
+    return localTimer.get() > timeoutTime;
   }
 }

@@ -10,7 +10,7 @@ import frc.robot.subsystems.DriveTrainSubsystem;
 public class RotateCommand extends Command {
 
   DriveTrainSubsystem driveTrainSubsystem;
-  double speed = 0.5;
+  double speed = 0.25;
   double targetAngle = 0;
 
   /** Creates a new RotateCommand. */
@@ -30,7 +30,7 @@ public class RotateCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double turn = targetAngle < 0 ? -speed : speed;
+    double turn = targetAngle < 0 ? speed : -speed;
     driveTrainSubsystem.ArcadeDrive(0, turn, false);
   }
 
@@ -43,6 +43,7 @@ public class RotateCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(driveTrainSubsystem.gyro.getAngle()) >= Math.abs(targetAngle);
+    // System.out.println(driveTrainSubsystem.gyro.getAngle());
+    return Math.abs(driveTrainSubsystem.gyro.getAngle()) > Math.abs(targetAngle);
   }
 }
