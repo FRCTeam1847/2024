@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -39,7 +38,7 @@ public class RobotContainer {
         // The robot's subsystems
         private final LauncherSubsystem launchSubsystem;
         private final LightsSubsystem lightSubSystem;
-        private final DriveTrainSubsystem driveSyubsystem;
+        private final DriveTrainSubsystem driveSubsystem;
         private final ClimberSubsystem climberSubsystem;
         private final Compressor m_compressor;
 
@@ -55,22 +54,22 @@ public class RobotContainer {
 
                 launchSubsystem = new LauncherSubsystem();
                 lightSubSystem = new LightsSubsystem();
-                driveSyubsystem = new DriveTrainSubsystem();
+                driveSubsystem = new DriveTrainSubsystem();
                 climberSubsystem = new ClimberSubsystem();
 
                 intakeCommand = new IntakeCommand(launchSubsystem, lightSubSystem);
                 shootCommand = new ShootCommand(launchSubsystem, lightSubSystem);
                 dropCommand = new DropCommand(launchSubsystem, lightSubSystem);
 
-                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSyubsystem, 35));
-                m_chooser.setDefaultOption("Rotate", Autos.Rotate(driveSyubsystem, 15));
-                m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(driveSyubsystem, 40, 90));
+                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSubsystem, 35));
+                m_chooser.setDefaultOption("Rotate", Autos.Rotate(driveSubsystem, 15));
+                m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(driveSubsystem, 40, 90));
                 m_chooser.addOption("Shoot and drive back",
-                                Autos.ShootRotateDriveBackwards(driveSyubsystem, launchSubsystem, lightSubSystem));
+                                Autos.ShootRotateDriveBackwards(driveSubsystem, launchSubsystem, lightSubSystem));
                 m_chooser.addOption("Left shoot and drive back",
-                                Autos.ShootDriveBackwardsLeft(driveSyubsystem, launchSubsystem, lightSubSystem));
+                                Autos.ShootDriveBackwardsLeft(driveSubsystem, launchSubsystem, lightSubSystem));
                 m_chooser.addOption("Right shoot and drive back",
-                                Autos.ShootDriveBackwardsRight(driveSyubsystem, launchSubsystem, lightSubSystem));
+                                Autos.ShootDriveBackwardsRight(driveSubsystem, launchSubsystem, lightSubSystem));
                 m_chooser.addOption("Shoot", Autos.ShootAuto(launchSubsystem, lightSubSystem));
                 SmartDashboard.putData("Auto choices", m_chooser);
 
@@ -98,8 +97,8 @@ public class RobotContainer {
                 m_driverController.leftTrigger().whileTrue(climberSubsystem.Climb());
                 m_driverController.rightTrigger().whileTrue(climberSubsystem.Lower());
                 // Driver
-                driveSyubsystem.setDefaultCommand(
-                                driveSyubsystem.arcadeDriveCommand(
+                driveSubsystem.setDefaultCommand(
+                                driveSubsystem.arcadeDriveCommand(
                                                 () -> -m_driverController.getLeftY(),
                                                 () -> -m_driverController.getLeftX()));
 
