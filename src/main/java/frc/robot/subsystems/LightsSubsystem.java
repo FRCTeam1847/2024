@@ -18,7 +18,7 @@ public class LightsSubsystem extends SubsystemBase {
   public AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(150);
 
   public int LeftLights = 20;
-  public int TopLights = 35;
+  public int TopLights = 32;
   public int RightLights = 55;
 
   public Color offColor = new Color(0, 0, 0);

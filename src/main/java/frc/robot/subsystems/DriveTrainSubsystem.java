@@ -8,11 +8,11 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Encoder;
@@ -25,64 +25,80 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class DriveTrainSubsystem extends SubsystemBase {
 
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-one");
+  private final CANSparkMax m_leftDrive1;
+  private final CANSparkMax m_rightDrive1;
+  private final CANSparkMax m_leftDrive2;
+  private final CANSparkMax m_rightDrive2;
 
-  private final CANSparkMax m_leftDrive1 = new CANSparkMax(1, MotorType.kBrushless);
-  private final CANSparkMax m_rightDrive1 = new CANSparkMax(4, MotorType.kBrushless);
-  private final CANSparkMax m_leftDrive2 = new CANSparkMax(2, MotorType.kBrushless);
-  private final CANSparkMax m_rightDrive2 = new CANSparkMax(3, MotorType.kBrushless);
-
-  private final DifferentialDrive Drive = new DifferentialDrive(m_leftDrive1, m_rightDrive1);
-
-  private final Encoder leftEncoder = new Encoder(2, 3);
-  private final Encoder rightEncoder = new Encoder(1, 0);
+  public final Encoder leftEncoder;
+  public final Encoder rightEncoder;
 
   private static final double cpr = 360;
   private static final double whd = 6;
+  private static final double distancePerPulse = Math.PI * (whd / cpr);
 
-  private final WPI_PigeonIMU gyro = new WPI_PigeonIMU(0);
-
-  private final DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(
-      gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
+  private final DifferentialDrive Drive;
+  public final WPI_PigeonIMU gyro;
 
   private Field2d m_field = new Field2d();
 
   /** Creates a new DriveTrainSubsystem. */
   public DriveTrainSubsystem() {
-    leftEncoder.setDistancePerPulse(Math.PI * (whd / cpr));
-    rightEncoder.setDistancePerPulse(Math.PI * (whd / cpr));
-    rightEncoder.setReverseDirection(true);
-    leftEncoder.setReverseDirection(true);
+    // Set devices
+    m_leftDrive1 = new CANSparkMax(1, MotorType.kBrushless);
+    m_rightDrive1 = new CANSparkMax(4, MotorType.kBrushless);
+    m_leftDrive2 = new CANSparkMax(2, MotorType.kBrushless);
+    m_rightDrive2 = new CANSparkMax(3, MotorType.kBrushless);
+    m_leftDrive1.setIdleMode(IdleMode.kBrake);
+    m_leftDrive2.setIdleMode(IdleMode.kBrake);
+    m_rightDrive1.setIdleMode(IdleMode.kBrake);
+    m_rightDrive2.setIdleMode(IdleMode.kBrake);
 
+    leftEncoder = new Encoder(2, 3);
+    rightEncoder = new Encoder(1, 0);
+    gyro = new WPI_PigeonIMU(0);
+    gyro.reset();
+    // Set up Drive
     m_rightDrive1.setInverted(true);
     m_leftDrive2.follow(m_leftDrive1);
     m_rightDrive2.follow(m_rightDrive1);
+    Drive = new DifferentialDrive(m_leftDrive1, m_rightDrive1);
+    // set up encoders
+    leftEncoder.setDistancePerPulse(distancePerPulse);
+    rightEncoder.setDistancePerPulse(distancePerPulse);
+    rightEncoder.setReverseDirection(true);
+    leftEncoder.setReverseDirection(true);
     leftEncoder.reset();
     rightEncoder.reset();
+    // Set up field on dashboard
     SmartDashboard.putData("Field", m_field);
 
   }
 
-  /** Update robot odometry. */
-  public void updateOdometry() {
-    m_odometry.update(
-        gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
+  public static double limitedCube(double x, double speed) {
+    // Calculate x^3
+    double result = Math.pow(x, 3);
+    // Check if result is below the minimum limit
+    if (result < -speed) {
+      return -speed;
+    }
+    // Check if result is above the maximum limit
+    else if (result > speed) {
+      return speed;
+    }
+    // Return the result if it's within the limits
+    return result;
   }
-
-  /** Resets robot odometry. */
-  public void resetOdometry(Pose2d pose) {
-    leftEncoder.reset();
-    rightEncoder.reset();
-    m_odometry.resetPosition(
-        gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance(), pose);
-  }
-
-  /** Check the current robot pose. */
-  public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+  public void ArcadeDrive(double X, double Z, boolean square) {
+    Drive.arcadeDrive(X, Z, square);
   }
 
   public void ArcadeDrive(double X, double Z) {
     Drive.arcadeDrive(X, Z);
+  }
+
+  public void Stop(){
+    Drive.stopMotor();
   }
 
   // public Command getPosition(){}
@@ -90,62 +106,11 @@ public class DriveTrainSubsystem extends SubsystemBase {
   public Command arcadeDriveCommand(DoubleSupplier fwd, DoubleSupplier rot) {
     // Set arcade drive with a cubic function
     return run(() -> {
-      double xSpeed = Math.pow(fwd.getAsDouble(), 3);
-      double zRotation = Math.pow(rot.getAsDouble(), 3);
+      double xSpeed = limitedCube(fwd.getAsDouble(), 0.75);
+      double zRotation = limitedCube(rot.getAsDouble(), 0.75);
       Drive.arcadeDrive(xSpeed, zRotation);
     })
         .withName("arcadeDrive");
-  }
-
-  public Command driveDistanceCommand(double distanceInches, double speed) {
-    return runOnce(
-        () -> {
-          // Reset encoders at the start of the command
-          leftEncoder.reset();
-          rightEncoder.reset();
-          gyro.reset();
-        })
-        // Drive forward at specified speed
-        .andThen(run(() -> {
-          double angle = gyro.getAngle();
-          double rotationSpeed = 0;
-          if(angle > 2){
-            rotationSpeed = 0.25;
-          }
-          else if(angle<-2){
-            rotationSpeed = -0.25;
-          }
-          Drive.arcadeDrive(speed, rotationSpeed, false);
-        }))
-        // End command when we've traveled the specified distance
-        .until(
-            () -> Math.max(leftEncoder.getDistance(), rightEncoder.getDistance()) >= distanceInches)
-        // Stop the drive when the command ends
-        .finallyDo(interrupted -> Drive.stopMotor());
-  }
-
-    public Command driveRotateAngle(double angle) {
-    return runOnce(
-        () -> {
-          // Reset encoders at the start of the command
-          gyro.reset();
-        })
-        // Drive forward at specified speed
-        .andThen(run(() -> {
-          double speed = 0.5;
-          if(angle < 0){
-            speed =-0.5;
-          }
-          else if(angle> 0){
-            speed = 0.5;
-          }
-          Drive.arcadeDrive(0, speed, false);
-        }))
-        // End command when we've traveled the specified distance
-        .until(
-            () -> gyro.getAngle() >= angle)
-        // Stop the drive when the command ends
-        .finallyDo(interrupted -> Drive.stopMotor());
   }
 
   @Override
@@ -159,7 +124,5 @@ public class DriveTrainSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Gyro", gyro.getAngle());
     SmartDashboard.putNumber("Camera TX", table.getEntry("tx").getDouble(0.0));
     SmartDashboard.putNumber("Camera Ty", table.getEntry("ty").getDouble(0.0));
-
-
   }
 }

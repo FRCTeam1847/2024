@@ -5,41 +5,45 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.subsystems.DriveTrainSubsystem;
 
-public class NoteMissingCommand extends Command {
-  LightsSubsystem lightsSubsystem;
+public class RotateCommand extends Command {
 
-  /** Creates a new NoteMissingCommand. */
-  public NoteMissingCommand(LightsSubsystem _lightsSubsystem) {
-    lightsSubsystem = _lightsSubsystem;
+  DriveTrainSubsystem driveTrainSubsystem;
+  double speed = 0.25;
+  double targetAngle = 0;
+
+  /** Creates a new RotateCommand. */
+  public RotateCommand(DriveTrainSubsystem _driveTrainSubsystem, double _angle) {
+    driveTrainSubsystem = _driveTrainSubsystem;
+    targetAngle = _angle;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(_lightsSubsystem);
+    addRequirements(_driveTrainSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    lightsSubsystem.LightsOff();
+    driveTrainSubsystem.gyro.reset();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    for (var i = 0; i < 19; i++) {
-      lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
-      lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
-    }
+    double turn = targetAngle < 0 ? speed : -speed;
+    driveTrainSubsystem.ArcadeDrive(0, turn, false);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    driveTrainSubsystem.Stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    // System.out.println(driveTrainSubsystem.gyro.getAngle());
+    return Math.abs(driveTrainSubsystem.gyro.getAngle()) > Math.abs(targetAngle);
   }
 }
