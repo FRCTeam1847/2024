@@ -76,13 +76,13 @@ public class IntakeCommand extends Command {
   public void end(boolean interrupted) {
     launcherSubsystem.StopMotors();
     if (launcherSubsystem.noteSwitch.get()) {
-      for (var i = 0; i < 19; i++) {
+      for (int i = 0; i < 19; i++) {
         lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.greenColor);
         lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.greenColor);
       }
     }
     else{
-      for (var i = 0; i < 19; i++) {
+      for (int i = 0; i < 19; i++) {
         lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
         lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
       }

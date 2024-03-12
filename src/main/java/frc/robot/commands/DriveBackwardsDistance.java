@@ -11,7 +11,7 @@ public class DriveBackwardsDistance extends Command {
   DriveTrainSubsystem driveTrainSubsystem;
 
   double angle;
-  double speed = -0.5;
+  double speed = -0.25;
   double maxAngle = 1;
   double distance = 0.0;
 

@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -61,16 +62,15 @@ public class RobotContainer {
                 shootCommand = new ShootCommand(launchSubsystem, lightSubSystem);
                 dropCommand = new DropCommand(launchSubsystem, lightSubSystem);
 
-                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSubsystem, 35));
-                m_chooser.setDefaultOption("Rotate", Autos.Rotate(driveSubsystem, 15));
-                m_chooser.addOption("Drive Back + Turn", Autos.DriveInchesRotate(driveSubsystem, 40, 90));
-                m_chooser.addOption("Shoot and drive back",
-                                Autos.ShootRotateDriveBackwards(driveSubsystem, launchSubsystem, lightSubSystem));
-                m_chooser.addOption("Left shoot and drive back",
-                                Autos.ShootDriveBackwardsLeft(driveSubsystem, launchSubsystem, lightSubSystem));
-                m_chooser.addOption("Right shoot and drive back",
-                                Autos.ShootDriveBackwardsRight(driveSubsystem, launchSubsystem, lightSubSystem));
+                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSubsystem, 40));
                 m_chooser.addOption("Shoot", Autos.ShootAuto(launchSubsystem, lightSubSystem));
+                m_chooser.addOption("Center Auto",
+                                Autos.CenterAuto(driveSubsystem, launchSubsystem, lightSubSystem));
+                m_chooser.addOption("Left Auto",
+                                Autos.LeftAuto(driveSubsystem, launchSubsystem, lightSubSystem));
+                m_chooser.addOption("Right Auto",
+                                Autos.RightAuto(driveSubsystem, launchSubsystem, lightSubSystem));
+
                 SmartDashboard.putData("Auto choices", m_chooser);
 
                 m_compressor = new Compressor(PneumaticsModuleType.REVPH);
@@ -80,9 +80,9 @@ public class RobotContainer {
 
         private void configureBindings() {
                 m_compressor.enableDigital();
-                // // // Intake logic
-                // new Trigger(launchSubsystem.hasTopNote)
-                //                 .onTrue(intakeCommand);
+                // Intake logic
+                new Trigger(launchSubsystem.hasTopNote)
+                                .onTrue(intakeCommand);
 
                 m_driverController.leftStick().toggleOnTrue(intakeCommand);
 

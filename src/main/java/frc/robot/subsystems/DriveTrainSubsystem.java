@@ -106,8 +106,8 @@ public class DriveTrainSubsystem extends SubsystemBase {
   public Command arcadeDriveCommand(DoubleSupplier fwd, DoubleSupplier rot) {
     // Set arcade drive with a cubic function
     return run(() -> {
-      double xSpeed = limitedCube(fwd.getAsDouble(), 0.5);
-      double zRotation = limitedCube(rot.getAsDouble(), 0.5);
+      double xSpeed = limitedCube(fwd.getAsDouble(), 0.75);
+      double zRotation = limitedCube(rot.getAsDouble(), 0.75);
       Drive.arcadeDrive(xSpeed, zRotation);
     })
         .withName("arcadeDrive");

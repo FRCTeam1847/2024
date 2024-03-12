@@ -78,7 +78,7 @@ public class ShootCommand extends Command {
   public void end(boolean interrupted) {
     launcherSubsystem.StopMotors();
     launcherSubsystem.disableLaunchMode();
-    for (var i = 0; i < 19; i++) {
+    for (int i = 0; i < 19; i++) {
       lightsSubsystem.m_ledBuffer.setLED(i, lightsSubsystem.redColor);
       lightsSubsystem.m_ledBuffer.setLED(lightsSubsystem.RightLights - i, lightsSubsystem.redColor);
     }

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class LauncherSubsystem extends SubsystemBase {
   
@@ -41,9 +42,9 @@ public class LauncherSubsystem extends SubsystemBase {
   //   return m_launch.isRevLimitSwitchClosed() == 0;
   // }
 
-  // public boolean getTopSwitchValue() {
-  //   return m_launch.isFwdLimitSwitchClosed() == 0;
-  // }
+  public boolean getTopSwitchValue() {
+    return m_launch.isFwdLimitSwitchClosed() == 0;
+  }
 
   public void setLaunchWheel(double speed) {
     engaged = true;
@@ -63,7 +64,7 @@ public class LauncherSubsystem extends SubsystemBase {
     m_launchMode.set(DoubleSolenoid.Value.kReverse);
   }
 
-  // public final Trigger hasTopNote = new Trigger(() -> !engaged && getTopSwitchValue());
+  public final Trigger hasTopNote = new Trigger(() -> !engaged && getTopSwitchValue());
 
   @Override
   public void periodic() {

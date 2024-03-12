@@ -14,13 +14,15 @@ import frc.robot.subsystems.LightsSubsystem;
 public final class Autos {
 
   private static Command ShootSequence(LauncherSubsystem launcherSubsystem,
-      LightsSubsystem lightsSubsystem)
-      {
-        return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
+      LightsSubsystem lightsSubsystem) {
+    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
         new ShootCommand(launcherSubsystem, lightsSubsystem));
-      }
+  }
 
-  /** Example static factory for an autonomous command. */
+  private static Command RotateSquence(DriveTrainSubsystem driveTrainSubsystem) {
+    return Commands.sequence(new WaitCommand(0.25), new RotateCommand(driveTrainSubsystem, 140));
+  }
+
   public static Command DriveBackwardsInches(DriveTrainSubsystem subsystem, double inches) {
     return Commands.sequence(new DriveBackwardsDistance(subsystem, inches));
   }
@@ -33,30 +35,28 @@ public final class Autos {
     return Commands.sequence(new RotateCommand(subsystem, degrees));
   }
 
-  public static Command ShootRotateDriveBackwards(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
+  public static Command CenterAuto(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
       LightsSubsystem lightsSubsystem) {
-    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
-        new ShootCommand(launcherSubsystem, lightsSubsystem),
-        new DriveBackwardsDistance(subsystem, 40), new WaitCommand(0.25), new RotateCommand(subsystem, 140));
+    return Commands.sequence(ShootSequence(launcherSubsystem, lightsSubsystem),
+        new DriveBackwardsDistance(subsystem, 55), RotateSquence(subsystem));
   }
 
-  public static Command ShootDriveBackwardsLeft(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
+  public static Command LeftAuto(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
       LightsSubsystem lightsSubsystem) {
-    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
-        new ShootCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(0.5),
-        new DriveBackwardsDistance(subsystem, 12), new WaitCommand(0.5), 
+    return Commands.sequence(ShootSequence(launcherSubsystem, lightsSubsystem), new WaitCommand(0.5),
+        new DriveBackwardsDistance(subsystem, 12), new WaitCommand(0.5),
         new RotateCommand(subsystem, -25),
         new WaitCommand(0.5),
-        new DriveBackwardsDistance(subsystem, 45));
+        new DriveBackwardsDistance(subsystem, 55), RotateSquence(subsystem));
   }
-  public static Command ShootDriveBackwardsRight(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
+
+  public static Command RightAuto(DriveTrainSubsystem subsystem, LauncherSubsystem launcherSubsystem,
       LightsSubsystem lightsSubsystem) {
-    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
-        new ShootCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(0.5),
-        new DriveBackwardsDistance(subsystem, 12), new WaitCommand(0.5), 
+    return Commands.sequence(ShootSequence(launcherSubsystem, lightsSubsystem), new WaitCommand(0.5),
+        new DriveBackwardsDistance(subsystem, 12), new WaitCommand(0.5),
         new RotateCommand(subsystem, 25),
         new WaitCommand(0.5),
-        new DriveBackwardsDistance(subsystem, 45));
+        new DriveBackwardsDistance(subsystem, 55), RotateSquence(subsystem));
   }
 
   public static Command ShootAuto(LauncherSubsystem launcherSubsystem,
