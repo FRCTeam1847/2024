@@ -12,6 +12,14 @@ import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
 
 public final class Autos {
+
+  private static Command ShootSequence(LauncherSubsystem launcherSubsystem,
+      LightsSubsystem lightsSubsystem)
+      {
+        return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
+        new ShootCommand(launcherSubsystem, lightsSubsystem));
+      }
+
   /** Example static factory for an autonomous command. */
   public static Command DriveBackwardsInches(DriveTrainSubsystem subsystem, double inches) {
     return Commands.sequence(new DriveBackwardsDistance(subsystem, inches));
@@ -53,8 +61,7 @@ public final class Autos {
 
   public static Command ShootAuto(LauncherSubsystem launcherSubsystem,
       LightsSubsystem lightsSubsystem) {
-    return Commands.sequence(new IntakeCommand(launcherSubsystem, lightsSubsystem), new WaitCommand(1),
-        new ShootCommand(launcherSubsystem, lightsSubsystem));
+    return Commands.sequence(ShootSequence(launcherSubsystem, lightsSubsystem));
   }
 
   private Autos() {
