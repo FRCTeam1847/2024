@@ -16,7 +16,7 @@ public class ShootCommand extends Command {
   int OnIndex;
   double maxSpeed = 1;
   double feedSpeed = 0.5;
-  double waitTime = 0.4;
+  double waitTime = 0.5;
   double timeoutTime = 1;
 
   // Only need this if we have to use time stuff

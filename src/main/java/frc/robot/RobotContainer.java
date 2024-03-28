@@ -62,14 +62,14 @@ public class RobotContainer {
                 shootCommand = new ShootCommand(launchSubsystem, lightSubSystem);
                 dropCommand = new DropCommand(launchSubsystem, lightSubSystem);
 
-                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSubsystem, 40));
-                m_chooser.addOption("Shoot", Autos.ShootAuto(launchSubsystem, lightSubSystem));
+                m_chooser.setDefaultOption("Drive Back", Autos.DriveBackwardsInches(driveSubsystem, climberSubsystem, 50));
+                m_chooser.addOption("Shoot", Autos.ShootAuto(launchSubsystem, lightSubSystem, climberSubsystem));
                 m_chooser.addOption("Center Auto",
-                                Autos.CenterAuto(driveSubsystem, launchSubsystem, lightSubSystem));
+                                Autos.CenterAuto(driveSubsystem, launchSubsystem, lightSubSystem, climberSubsystem));
                 m_chooser.addOption("Left Auto",
-                                Autos.LeftAuto(driveSubsystem, launchSubsystem, lightSubSystem));
+                                Autos.LeftAuto(driveSubsystem, launchSubsystem, lightSubSystem, climberSubsystem));
                 m_chooser.addOption("Right Auto",
-                                Autos.RightAuto(driveSubsystem, launchSubsystem, lightSubSystem));
+                                Autos.RightAuto(driveSubsystem, launchSubsystem, lightSubSystem, climberSubsystem));
 
                 SmartDashboard.putData("Auto choices", m_chooser);
 

@@ -15,6 +15,14 @@ public class ClimberSubsystem extends SubsystemBase {
   public ClimberSubsystem() {
     m_motor.setInverted(false);
   }
+
+  public void liftMotor (){
+    m_motor.set(-1);
+  }
+  public void stopMotor(){
+    m_motor.stopMotor();
+  }
+
 /**
  * Runs climber up at full speed
  * @return
@@ -37,6 +45,8 @@ public class ClimberSubsystem extends SubsystemBase {
     })
     .finallyDo(interrupted -> m_motor.stopMotor());
   }
+
+
 
   @Override
   public void periodic() {
